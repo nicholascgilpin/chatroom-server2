@@ -41,7 +41,7 @@ package helloworld;
 service Greeter {
   // Sends a greeting
   rpc SayHello (HelloRequest) returns (HelloReply) {}
-	// sends another greeting
+	// Sends another greeting
 	rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
 }
 
