@@ -54,11 +54,10 @@ class GreeterClient {
 
   // Assambles the client's payload, sends it and presents the response back
   // from the server.
-  std::string SayHello(const std::string& user,const std::string& message) {
+  std::string SayHello(const std::string& user) {
     // Data we are sending to the server.
     HelloRequest request;
     request.set_name(user);
-		request.set_msg(message);
 
     // Container for the data we expect from the server.
     HelloReply reply;
@@ -109,15 +108,11 @@ int main(int argc, char** argv) {
   GreeterClient greeter(grpc::CreateChannel(
       "localhost:50059", grpc::InsecureChannelCredentials()));
   std::string user("world");
-	std::string message("You have connected with the server!");
-	
-	// @TODO: Make sure this doesn't need to be multithreaded
-	while (true) {
-		std::cout << "Enter a command: " << std::endl;
-		std::cin >> message;
-		std::string reply = greeter.SayHello(user, message);
-		std::cout << "Greeter received: " << reply << std::endl;
-	}
+  std::string reply = greeter.SayHello(user);
+  std::cout << "Greeter received: " << reply << std::endl;
+
+	reply = greeter.SayHelloAgain(user);
+	std::cout << "Greeter received: " << reply << std::endl;
   
 	return 0;
 }

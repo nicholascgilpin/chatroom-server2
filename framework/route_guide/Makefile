@@ -1,3 +1,4 @@
+
 #
 # Copyright 2015, Google Inc.
 # All rights reserved.
@@ -35,11 +36,11 @@ CXX = g++
 CPPFLAGS += -I/usr/local/include -pthread
 CXXFLAGS += -std=c++11
 ifeq ($(SYSTEM),Darwin)
-LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++ grpc`       \
+LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++`            \
            -lgrpc++_reflection \
            -lprotobuf -lpthread -ldl
 else
-LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++ grpc`       \
+LDFLAGS += -L/usr/local/lib `pkg-config --libs grpc++`            \
            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed \
            -lprotobuf -lpthread -ldl
 endif
@@ -51,33 +52,22 @@ PROTOS_PATH = ./
 
 vpath %.proto $(PROTOS_PATH)
 
-all: system-check greeter_client greeter_server greeter_async_client greeter_async_client2 greeter_async_server
+all: system-check route_guide_client route_guide_server
 
-greeter_client: helloworld.pb.o helloworld.grpc.pb.o greeter_client.o
+route_guide_client: chatservice.pb.o chatservice.grpc.pb.o route_guide_client.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
-greeter_server: helloworld.pb.o helloworld.grpc.pb.o greeter_server.o
+route_guide_server: chatservice.pb.o chatservice.grpc.pb.o route_guide_server.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
-greeter_async_client: helloworld.pb.o helloworld.grpc.pb.o greeter_async_client.o
-	$(CXX) $^ $(LDFLAGS) -o $@
-
-greeter_async_client2: helloworld.pb.o helloworld.grpc.pb.o greeter_async_client2.o
-	$(CXX) $^ $(LDFLAGS) -o $@
-
-greeter_async_server: helloworld.pb.o helloworld.grpc.pb.o greeter_async_server.o
-	$(CXX) $^ $(LDFLAGS) -o $@
-
-.PRECIOUS: %.grpc.pb.cc
 %.grpc.pb.cc: %.proto
 	$(PROTOC) -I $(PROTOS_PATH) --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
 
-.PRECIOUS: %.pb.cc
 %.pb.cc: %.proto
 	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
 
 clean:
-	rm -f *.o *.pb.cc *.pb.h greeter_client greeter_server greeter_async_client greeter_async_client2 greeter_async_server
+	rm -f *.o *.pb.cc *.pb.h route_guide_client route_guide_server
 
 
 # The following is to test your system and ensure a smoother experience.
@@ -132,4 +122,3 @@ endif
 ifneq ($(SYSTEM_OK),true)
 	@false
 endif
-
