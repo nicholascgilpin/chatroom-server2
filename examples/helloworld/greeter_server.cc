@@ -54,7 +54,14 @@ class GreeterServiceImpl final : public Greeter::Service {
     std::string prefix("Hello ");
     reply->set_message(prefix + request->name());
     return Status::OK;
-  }
+	}
+		
+	Status SayHelloAgain(ServerContext* context, const HelloRequest* request,
+											HelloReply* reply) override {
+			std::string prefix("Hello again ");
+			reply->set_message(prefix + request->name());
+			return Status::OK;
+	}
 };
 
 void RunServer() {
@@ -81,4 +88,3 @@ int main(int argc, char** argv) {
 
   return 0;
 }
-
