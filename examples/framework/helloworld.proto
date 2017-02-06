@@ -43,11 +43,30 @@ service Greeter {
   rpc SayHello (HelloRequest) returns (HelloReply) {}
 	// Sends another greeting
 	rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
+	rpc join (Command) returns (HelloReply)
+	rpc list (Command) returns (HelloReply)
+	rpc leave (Command) returns (HelloReply)
+	rpc chat (Command) returns (HelloReply)
+}
+
+// Transports command type and parameters
+message Command {
+	string name = 1;
+	string msg = 2;
+	string room = 3;
+	int32 type = 4;
+	enum CommandTypes {
+		JOIN = 1;
+		LIST = 2;
+		LEAVE = 3;
+		CHAT = 4;
+	}
 }
 
 // The request message containing the user's name.
 message HelloRequest {
   string name = 1;
+	string msg = 2;
 }
 
 // The response message containing the greetings
