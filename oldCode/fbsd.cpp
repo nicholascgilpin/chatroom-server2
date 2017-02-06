@@ -5,35 +5,8 @@
  * and may show up as "Copied" even though socket connections are standard.
  */
 #include "common.h"
-#include <algorithm>
-#include <chrono>
-#include <cmath>
-#include <iostream>
-#include <memory>
-#include <string>
-
-#include <grpc/grpc.h>
-#include <grpc++/server.h>
-#include <grpc++/server_builder.h>
-#include <grpc++/server_context.h>
-#include <grpc++/security/server_credentials.h>
-#include "chatserver.grpc.pb.h"
 
 using namespace std;
-using grpc::Server;
-using grpc::ServerBuilder;
-using grpc::ServerContext;
-using grpc::ServerReader;
-using grpc::ServerReaderWriter;
-using grpc::ServerWriter;
-using grpc::Status;
-using std::chrono::system_clock;
-using chatserver::ChatMsg;
-using chatserver::timeline;
-using chatserver::Stats;
-using chatserver::User;
-using chatserver::commandService;
-using chatserver::chatService;
 
 //our chat room structure
 struct Room {
@@ -47,14 +20,15 @@ struct Room {
 /*--------------------------------------------------------------------------*/
 /* VARIABLES */
 /*--------------------------------------------------------------------------*/
+
 int masterfd;  // listen on sock_fd
 struct addrinfo hints, *serv, *res; //connection info
 struct sockaddr_storage their_addr; // connector's address information
 socklen_t sin_size;
 char s[INET6_ADDRSTRLEN];
 int rv;
-vector<int> fds; //our list of file descriptors connected to main room
 
+vector<int> fds; //our list of file descriptors connected to main room
 string port = "1024";
 int nextPort = 1025;
 vector<Room> rooms;
@@ -111,16 +85,6 @@ void deleteRoomByName(const string name){
         }
     }
 }
-
-/*
-class commandServiceImpl final : public chatserver::Service {
-
-};
-
-class chatServiceImpl final : public chatserver::Service {
-
-};
-*/
 
 //Main chat room request processor
 //PARAM ch_fd: The file descriptor that sent the request
@@ -198,43 +162,89 @@ void process_request(int & ch_fd, const string & _request) {
 
 }
 
-
-
-//void RunServer(const std::string& db_path)
-
 //Creates master room at port 1024
 void create_master_room(){
-	string server_address("0.0.0.0:5056");
-//	chatServiceImpl service();
-//	commandServiceImpl service();
+	string s_port = "1024";
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE; // use my IP
 
-	ServerBuilder builder;
-	builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-	//builder.RegisterService(&service);
-	unique_ptr<Server> server(builder.BuildAndStart());
-	cout << "Server listening on " << server_address << endl;
-	server->Wait();
+	// Setup host
+	if ((rv = getaddrinfo(NULL, s_port.c_str(), &hints, &serv)) != 0) {
+		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+		exit(1);
+	}
 
-/*
+	// Create the socket
+	if ((masterfd = socket(serv->ai_family, serv->ai_socktype, serv->ai_protocol)) == -1) {
+		perror("server: socket");
+		exit(1);
+	}
+
+	// Set socket options (allow multiple connections)
+	int optval = 1;
+	setsockopt(masterfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+
+	// Bind the socket to the address
+	if (bind(masterfd, serv->ai_addr, serv->ai_addrlen) == -1) {
+		close(masterfd);
+		perror("server: bind");
+		exit(1);
+	}
+
+	// Unsure
+	freeaddrinfo(serv); // all done with this structure
+
+	// Begin listening on oscket
+	if (listen(masterfd, 20) == -1) {
+		perror("listen");
+		exit(1);
+	}
+
+	fd_set read_fd_set;
+	fds.push_back(masterfd);
 
 	while(1) {
-		
-		if (FD_ISSET(masterfd, &read_fd_set)){ //new connection detected
-			printf("New Connection Received\n");
-			int incomingfd = accept(masterfd, (struct sockaddr *)&their_addr, &sin_size);
-			cwrite("Welcome to chat room service", incomingfd);
-			fds.push_back(incomingfd);
-		} else { //otherwise process a client request
-			for (int i = 1; i < fds.size(); ++i) {
-				if (FD_ISSET(fds[i], &read_fd_set)){
-					string msg = cread(fds[i]);
-					msg = msg.c_str() + 8; //removing "CLIENT: " from message
-					process_request(fds[i], msg);
-				}
+		sin_size = sizeof their_addr;
+
+		FD_ZERO(&read_fd_set);
+		int max = masterfd;
+		for (int i = 0; i < fds.size(); ++i){
+			FD_SET(fds[i], &read_fd_set);
+			if (max < fds[i]){
+				max = fds[i];
 			}
 		}
 		
-	}*/
+		//wait to see which fds are active
+		int n = select(max + 1, &read_fd_set, NULL, NULL, NULL);
+
+		if (n == -1) {
+			perror("Invalid # of file descriptors found in master");
+			cout << fds.size() << endl;
+			exit(1);
+			continue;
+		} else if (n == 0){
+			perror("Timeout, no activity");
+		}
+		else {
+			if (FD_ISSET(masterfd, &read_fd_set)){ //new connection detected
+				printf("New Connection Received\n");
+				int incomingfd = accept(masterfd, (struct sockaddr *)&their_addr, &sin_size);
+				cwrite("Welcome to chat room service", incomingfd);
+				fds.push_back(incomingfd);
+			} else { //otherwise process a client request
+				for (int i = 1; i < fds.size(); ++i) {
+					if (FD_ISSET(fds[i], &read_fd_set)){
+						string msg = cread(fds[i]);
+						msg = msg.c_str() + 8; //removing "CLIENT: " from message
+						process_request(fds[i], msg);
+					}
+				}
+			}
+		}
+	}
 }
 
 //Processing chat room requests.

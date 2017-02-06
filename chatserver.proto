@@ -13,7 +13,7 @@ package chatserver;
 // [END declaration]
 
 // [START messages]
-message Status {
+message Stats {
   string name = 1; // client username
   string msg = 2; // message content
 	
@@ -26,7 +26,39 @@ message Status {
 }
 
 message timeline {
-  repeated Status statuses = 1;
+  repeated Stats statuses = 1;
+}
+
+message ChatMsg {
+	string name = 1;
+	string msg = 2;
+	int64 timeStamp = 3; // For requirements 10 & 11
+}
+
+message Commands {
+	enum type {
+		List = 0;
+		Join = 1;
+		Leave = 2;
+		Chat = 3;
+	}
+	int32 commandType = 1;
+	string roomName = 2; //For join & leave
+}
+
+message User {
+	string name = 1;
+	repeated ChatMsg log = 2; //All name's messages
+	repeated User subscription = 3;
+}
+
+service commandService{
+	rpc commandRequest(Commands) returns (Stats){}
+}
+
+service chatService{
+	rpc chatStream(stream ChatMsg) returns (stream Stats){
+	}
 }
 
 // [END messages]
