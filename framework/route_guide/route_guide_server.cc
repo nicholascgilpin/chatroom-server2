@@ -58,10 +58,23 @@ using chatserver::ChatMsg;
 using chatserver::timeline;
 using chatserver::JoinRequest;
 using chatserver::Stats;
-using chatserver::User;
+using chatserver::clientUser;
 using chatserver::commandService;
+using chatserver::Requests;
 //using chatserver::commandService;
 //using chatserver::chatStream;
+
+vector<clientUser*> userList;
+
+bool checkUserList(string username){
+    for(int i = 0; i < userList.size(); i++){
+
+        if(userList[i]->name() == username)
+            return true;
+        else
+            return false;
+    }
+}
 
 class chatServiceServer final : public commandService::Service {
     public:
@@ -71,7 +84,18 @@ class chatServiceServer final : public commandService::Service {
     Status Join(ServerContext* context, const JoinRequest* statusPost,
                      Stats* statusGet) override {
         cout << "Server in commandRequest\n";
-        statusGet->set_name("Joined Chat Room " + statusPost->name());
+        statusGet->set_name("Joined Chat Room " + statusPost->name() + "\n");
+        return Status::OK;
+    }
+
+    Status User(ServerContext* context, const Requests* request, Requests* reply) override {
+        cout << "Server in User function\n";
+        if(!checkUserList(request->loginrequest())){
+            clientUser newUser;
+            newUser.set_name(request->loginrequest());
+            userList.push_back(&newUser);
+        }
+        reply->set_loginreply("Welcome, " + request->loginrequest() + "\n");
         return Status::OK;
     }
 };

@@ -46,14 +46,19 @@ message Commands {
 	string roomName = 2; //For join & leave
 }
 
-message User {
+message clientUser {
 	string name = 1;
 	repeated ChatMsg log = 2; //All name's messages
-	repeated User subscription = 3;
+	repeated clientUser subscription = 3;
 }
 
 message JoinRequest {
     string name = 1;
+}
+
+message Requests{
+	string loginrequest = 1;
+	string loginreply = 2;
 }
 
 service commandService{
@@ -63,6 +68,8 @@ service commandService{
 	rpc Join(JoinRequest) returns (Stats) {}
 
 	rpc chatStream(ChatMsg) returns (Stats){}
+
+	rpc User(Requests) returns (Requests){}
 }
 
 

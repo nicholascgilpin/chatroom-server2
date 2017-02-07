@@ -37,6 +37,7 @@
 #include <random>
 #include <string>
 #include <thread>
+#include <sstream>
 
 #include <grpc/grpc.h>
 #include <grpc++/channel.h>
@@ -57,8 +58,9 @@ using chatserver::ChatMsg;
 using chatserver::timeline;
 using chatserver::Stats;
 using chatserver::JoinRequest;
-using chatserver::User;
+using chatserver::clientUser;
 using chatserver::commandService;
+using chatserver::Requests;
 //using chatserver::commandService;
 //using chatserver::chatStream;
 
@@ -67,71 +69,101 @@ bool chatMode = false; //client starts in commandMode
 class chatServiceClient {
     private: 
     unique_ptr<commandService::Stub> stub;
+    string userinput;
     
     public:
-    chatServiceClient(string address) {
+    chatServiceClient(string address, string name) {
         // create a new channel to server
         shared_ptr<Channel> channel = grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
         
-        cout << "Client is connected on: " << address << endl;
+        cout << "Client "+userinput+" is connected on: " << address << endl;
         
         stub = commandService::NewStub(channel);
+
+        userinput = name;
     }
-    
-    void testJoin() {
-        // create join request and reply objects
-        JoinRequest statusPost;
-        Stats statusGet;
-        
-        statusPost.set_name("test");
-        
-        // send join request to server
+
+    void user(){
+        Requests userRequest;
+
+        userRequest.set_loginrequest(userinput);
         ClientContext context;
-        Status status = stub->Join(&context, statusPost, &statusGet); 
-        
-        // check if request was successful
+        Status status = stub->User(&context, userRequest, &userRequest);
         if (!status.ok()) {
-            cout << "Error Happened\n";
-            cout << "Join statusGet: " << statusGet.name() << endl;
+            cout << "Error Occured: Server Cannot Login.\n";
         }
         else {
-            cout << "Join statusGet: " << statusGet.name();
+            // print server's reply
+            cout << userRequest.loginreply();
         }
     }
+    
 };
 
-//string split functions below
-/*
-void split(const string &s, char delim, vector<string> &elems) {
-  stringstream ss;
-  ss.str(s);
-  string item;
-  while (getline(ss, item, delim)) {
-    elems.push_back(item);
-  }
-}
+void commandMode(chatServiceClient* client) {
+    string input;
+    string delimiter = " ";
+    getline(cin, input);
 
-vector<string> split(const string &s, char delim) {
-  vector<string> elems;
-  split(s, delim, elems);
-  return elems;
+    size_t pos = 0;
+    vector<string> tokens;
+
+    while ((pos = input.find(delimiter)) != string::npos) {
+        tokens.push_back(input.substr(0, pos));
+        input.erase(0, pos + delimiter.length());
+    }
+    tokens.push_back(input);
+
+    cout<< "In commandmode. \n";
+    cout<<"Got your command: " + tokens[0] + "\n";
+
+    if (tokens[0] == "LIST") {
+        cout<<"Printing List.\n";
+       //client->list();
+    }
+    else if (tokens[0] == "JOIN" && tokens.size() == 2) {
+        string chatRoom = tokens[1];
+        cout<<"Subscribing to: " + chatRoom + "\n";
+       // client->join(chatRoom);
+    }
+    else if (tokens[0] == "LEAVE" && tokens.size() == 2) {
+        string chatRoom = tokens[1];
+        cout<<"Leaving: " + chatRoom + "\n";
+       // client->leave(chatRoom);
+    }
+    else if (tokens[0] == "CHAT") {
+        cout<<"Going to chat.\n";
+       // client->chat();
+    }
+    else {
+        cout << tokens[0] << " is not a valid command! Please enter LIST, JOIN, LEAVE, or CHAT: \n";
+    }
 }
-*/
 
 int main(int argc, char* argv[]) {
     
     string hostName = "localhost";
     string portNumber = "5056";
+    string name;
     
-    if (argc >= 3) {
+    if (argc >= 4) {
         hostName = argv[1];
         portNumber = argv[2];
+        name = argv[3];
     }
-    
+    else{
+        cerr << "You must provide command line input." << endl;
+        return 0;
+    }
+
     // create facebook chat client
-    chatServiceClient client(hostName + ":" + portNumber);
+    chatServiceClient client(hostName + ":" + portNumber, name);
     
-    client.testJoin();
+    client.user();
+    
+    while (!chatMode) {
+        commandMode(&client);
+    }
     
     return 0;
 }
