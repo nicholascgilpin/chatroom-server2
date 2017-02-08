@@ -146,6 +146,26 @@ int TimelinesToDisk(vector<timeline> tl){
 	return 0;
 }
 
+// Read the timelines from the disk to a vector
+int TimelinesFromDisk(vector<timeline> tl){
+	std::string fileName = "db.bin";
+	TimelineDB db = TimelineDB();
+	
+	cout << "Checking for chat logs...";
+	fstream input(fileName, ios::in | ios::binary);
+  if (!db.ParseFromIstream(&input)) {
+    cout << " No chat logs found." << endl;
+    return -1;
+  }	
+	else{
+		cout << " Chat logs found!\n";
+		for (size_t i = 0; i < db.timeline_size(); i++) {
+			tl.push_back(timeline(db.timeline(i)));
+		}
+	}
+	return 0;
+}
+
 void startServer(string portNumber) {
     // create facebookServer object
     chatServiceServer chatServiceServer;
@@ -172,10 +192,9 @@ int main(int argc, char* argv[]) {
     if (argc >= 2) {
         portNumber = argv[1];
     }
-		cout << "Remember to remove the timeline test vector\n";
-		initTimelineList(&timelineList);
-		TimelinesToDisk(timelineList);
+		TimelinesFromDisk(timelineList);
     startServer(portNumber);
+		TimelinesToDisk(timelineList);
     
     return 0;
 }
