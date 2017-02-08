@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
         name = argv[3];
     }
     else{
-        cerr << "You must provide command line input." << endl;
+        cerr << "Usage: hostName portNumber userName " << endl;
         return 0;
     }
 
