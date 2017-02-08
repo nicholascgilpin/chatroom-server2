@@ -67,7 +67,7 @@ route_guide_server: chatservice.pb.o chatservice.grpc.pb.o route_guide_server.o
 	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
 
 clean:
-	rm -f *.o *.pb.cc *.pb.h route_guide_client route_guide_server
+	rm -f *.bin *.o *.pb.cc *.pb.h route_guide_client route_guide_server
 
 
 # The following is to test your system and ensure a smoother experience.

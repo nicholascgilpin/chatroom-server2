@@ -71,6 +71,13 @@ class chatServiceClient {
     unique_ptr<commandService::Stub> stub;
     string userinput;
     
+		ChatMsg makeMessage(const std::string& message) {
+			ChatMsg m;
+			m.set_name(userinput);
+			m.set_msg(message);
+			return m;
+		}
+		
     public:
     chatServiceClient(string address, string name) {
         // create a new channel to server
