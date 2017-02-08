@@ -37,6 +37,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <fstream>
 
 #include <grpc/grpc.h>
 #include <grpc++/server.h>
@@ -64,7 +65,32 @@ using chatserver::Requests;
 //using chatserver::commandService;
 //using chatserver::chatStream;
 
+// Debugging Code /////////////////////////////////////////////////////////////
+// Create a test timeline list
+void initTimelineList(vector<timeline>* tl){
+	timeline t1 = timeline();
+	t1.set_name("Alice");
+	Stats* s1 = t1.add_statuses();
+	s1->set_name("Alice");
+	s1->set_msg("Hi");
+	Stats* s2 = t1.add_statuses();
+	s2->set_name("Bob");
+	s2->set_msg("Hi");
+	tl->push_back(t1);
+	timeline t2 = timeline();
+	t2.set_name("Bob");
+	Stats* s3 = t2.add_statuses();
+	s3->set_name("Alice2");
+	s3->set_msg("Hi2");
+	Stats* s4 = t2.add_statuses();
+	s4->set_name("Bob2");
+	s4->set_msg("Hi2");
+	tl->push_back(t2);
+}
+
+// Global Variables ////////////////////////////////////////////////////////////
 vector<clientUser*> userList;
+vector<timeline> timelineList; // stores each person's timelines 
 
 bool checkUserList(string username){
     for(int i = 0; i < userList.size(); i++){
@@ -100,6 +126,21 @@ class chatServiceServer final : public commandService::Service {
     }
 };
 
+// Write each person's chatroom/timeline to the disk in a binary format
+int TimelinesToDisk(vector<timeline> tl){
+	cout << "Serializing timelines...\n";
+	for (size_t i = 0; i < tl.size(); i++) {
+		std::string  fileName("Error in function TimelinesToDisk");
+		fileName = tl[i].name();
+		fstream fs(fileName, ios::out | ios::trunc | ios::binary);
+		if (!tl[i].SerializeToOstream(&fs)) {
+			cerr << "Failed to write to disk." << endl;
+			return -1;
+		}
+		fs.close();
+	}
+	return 0;
+}
 
 void startServer(string portNumber) {
     // create facebookServer object
@@ -118,8 +159,8 @@ void startServer(string portNumber) {
     unique_ptr<Server> server(serverBuilder.BuildAndStart());
     
     cout << "Server is running on: " << "localhost:" + portNumber << endl;
-    
-    // server waits until killed
+    TimelinesToDisk(timelineList);
+    cout << "Server waiting for shutdown signal\n";
     server->Wait();
 }
 
@@ -128,7 +169,7 @@ int main(int argc, char* argv[]) {
     if (argc >= 2) {
         portNumber = argv[1];
     }
-
+		initTimelineList(&timelineList);
     startServer(portNumber);
     
     return 0;
