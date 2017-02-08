@@ -27,7 +27,11 @@ message Stats {
 
 message timeline {
   repeated Stats statuses = 1;
-	string name = 2; // client, used for: disk filename & room name
+	string name = 2; // client, used for room name
+}
+
+message TimelineDB{
+	repeated timeline timeline = 1; // Used to serialize all timelines
 }
 
 message ChatMsg {

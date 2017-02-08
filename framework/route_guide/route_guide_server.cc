@@ -62,6 +62,7 @@ using chatserver::Stats;
 using chatserver::clientUser;
 using chatserver::commandService;
 using chatserver::Requests;
+using chatserver::TimelineDB;
 //using chatserver::commandService;
 //using chatserver::chatStream;
 
@@ -129,16 +130,19 @@ class chatServiceServer final : public commandService::Service {
 // Write each person's chatroom/timeline to the disk in a binary format
 int TimelinesToDisk(vector<timeline> tl){
 	cout << "Serializing timelines...\n";
+	TimelineDB db = TimelineDB();
 	for (size_t i = 0; i < tl.size(); i++) {
-		std::string  fileName("Error in function TimelinesToDisk");
-		fileName = tl[i].name() + ".bin";
-		fstream fs(fileName, ios::out | ios::trunc | ios::binary);
-		if (!tl[i].SerializeToOstream(&fs)) {
-			cerr << "Failed to write to disk." << endl;
-			return -1;
-		}
-		fs.close();
+		timeline* t = db.add_timeline();
+		*t = tl[i];
 	}
+	std::string  fileName("Error in function TimelinesToDisk");
+	fileName = "db.bin";
+	fstream fs(fileName, ios::out | ios::trunc | ios::binary);
+	if (!db.SerializeToOstream(&fs)) {
+		cerr << "Failed to write to disk." << endl;
+		return -1;
+	}
+	fs.close();
 	return 0;
 }
 
