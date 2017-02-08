@@ -131,7 +131,7 @@ int TimelinesToDisk(vector<timeline> tl){
 	cout << "Serializing timelines...\n";
 	for (size_t i = 0; i < tl.size(); i++) {
 		std::string  fileName("Error in function TimelinesToDisk");
-		fileName = tl[i].name();
+		fileName = tl[i].name() + ".bin";
 		fstream fs(fileName, ios::out | ios::trunc | ios::binary);
 		if (!tl[i].SerializeToOstream(&fs)) {
 			cerr << "Failed to write to disk." << endl;
@@ -159,7 +159,6 @@ void startServer(string portNumber) {
     unique_ptr<Server> server(serverBuilder.BuildAndStart());
     
     cout << "Server is running on: " << "localhost:" + portNumber << endl;
-    TimelinesToDisk(timelineList);
     cout << "Server waiting for shutdown signal\n";
     server->Wait();
 }
@@ -169,7 +168,9 @@ int main(int argc, char* argv[]) {
     if (argc >= 2) {
         portNumber = argv[1];
     }
+		cout << "Remember to remove the timeline test vector\n";
 		initTimelineList(&timelineList);
+		TimelinesToDisk(timelineList);
     startServer(portNumber);
     
     return 0;
