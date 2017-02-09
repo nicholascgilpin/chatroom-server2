@@ -28,6 +28,7 @@ message Stats {
 message timeline {
   repeated Stats statuses = 1;
 	string name = 2; // client, used for room name
+	repeated string subscribed = 3;
 }
 
 message TimelineDB{
@@ -64,13 +65,15 @@ message JoinRequest {
 message Requests{
 	string loginrequest = 1;
 	string loginreply = 2;
+	string joinrequest = 3;
+	string joinreply = 4;
 }
 
 service commandService{
 
 	rpc commandRequest(Commands) returns (Stats){}
 
-	rpc Join(JoinRequest) returns (Stats) {}
+	rpc Join(Requests) returns (Requests) {}
 
 	rpc chatStream(ChatMsg) returns (Stats){}
 

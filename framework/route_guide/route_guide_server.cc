@@ -90,38 +90,88 @@ void initTimelineList(vector<timeline>* tl){
 }
 
 // Global Variables ////////////////////////////////////////////////////////////
-vector<clientUser*> userList;
-vector<timeline> timelineList; // stores each person's timelines 
+vector<clientUser> userList = vector<clientUser>();
+vector<timeline> timelineList = vector<timeline>(); // stores each person's timelines 
 
 bool checkUserList(string username){
     for(int i = 0; i < userList.size(); i++){
-
-        if(userList[i]->name() == username)
+        if(userList[i].name() == username){
+            cout<<"username: " + username;
             return true;
+        }           
         else
             return false;
     }
 }
+
+string processSubscription(string user, string userToSubscribeTo){
+    string response;
+
+    if(checkUserList(user) == false){
+        response = "Invalid user input.";
+        return response;
+    }
+
+    if(checkUserList(userToSubscribeTo) == false){
+        response = "Cannot join user: " + userToSubscribeTo +" user does not exist.";
+        return response;
+    }
+    
+    if(user == userToSubscribeTo){
+        response = "You cannot subscribe to yourself.";
+        return response;
+    }
+    else{
+        for (int i = 0; i < timelineList.size(); i++){
+            if(timelineList[i].name() == user){
+                for(int j = 0; j < timelineList[i].subscribed_size(); j++){
+                    if(timelineList[i].subscribed(j) == userToSubscribeTo){
+                        response = "You are already subscribed to: " + userToSubscribeTo;
+                        return response;
+                    }
+                    else{
+                        string* temp = timelineList[i].add_subscribed();
+                        *temp = userToSubscribeTo;
+                      //  timelineList[i].subscribed(i).push_back(userToSubscribeTo);
+                        response = "Subscribed to: " + userToSubscribeTo;
+                        return response;      
+
+                    }
+                }
+            }
+            else{
+                response = "Error in join function.\n";
+                return response;
+            }
+        }
+    }
+    // Bob has his own timeline
+}//timeline list has a data structure called subscribed; this is who Bob is following
+
 
 class chatServiceServer final : public commandService::Service {
     public:
     chatServiceServer() {}
     
     // process client JOIN command
-    Status Join(ServerContext* context, const JoinRequest* statusPost,
-                     Stats* statusGet) override {
-        cout << "Server in commandRequest\n";
-        statusGet->set_name("Joined Chat Room " + statusPost->name() + "\n");
+    Status Join(ServerContext* context, const Requests* statusPost,
+                     Requests* statusGet) override {
+        cout << "Server in join\n";
+        statusGet->set_joinreply(processSubscription(statusPost->loginrequest(), statusPost->joinrequest()));
+            //"Joined Chat Room " + statusPost->name() + "\n");
         return Status::OK;
     }
 
     Status User(ServerContext* context, const Requests* request, Requests* reply) override {
         cout << "Server in User function\n";
         if(!checkUserList(request->loginrequest())){
-            clientUser newUser;
+            clientUser newUser = clientUser();
             newUser.set_name(request->loginrequest());
-            userList.push_back(&newUser);
+            cout<<"\n  in User function: newUser: " + newUser.name();
+            userList.push_back(newUser);
         }
+        cout << "\n Acessing userlist";
+        cout<<"\n  in User function: newUser: " + userList[0].name();
         reply->set_loginreply("Welcome, " + request->loginrequest() + "\n");
         return Status::OK;
     }
