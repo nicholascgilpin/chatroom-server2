@@ -31,12 +31,19 @@ using chatserver::Requests;
 
 bool chatMode = false; //client starts in commandMode
 
+ChatMsg makeMessage(const std::string& username, const std::string& message) {
+	ChatMsg m;
+	m.set_name(username);
+	m.set_msg(message);
+	return m;
+}
+
 class chatServiceClient {
     private: 
     unique_ptr<commandService::Stub> stub;
-    string userinput;
     
     public:
+			string userinput;
     chatServiceClient(string address, string name) {
         // create a new channel to server
         shared_ptr<Channel> channel = grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
@@ -83,13 +90,55 @@ class chatServiceClient {
     
     }
     
+	  void chat() {
+	    ClientContext context;
+			static string name = this->userinput;
+	    std::shared_ptr<ClientReaderWriter<ChatMsg, ChatMsg> > stream(
+	        stub->chat(&context));
+			
+			// Thread; Takes keyboard input and sends to server
+	    std::thread writer([stream]() {
+	      std::vector<ChatMsg> notes;
+				ChatMsg m = ChatMsg();
+				string tempMessage = "";
+				while (true){
+					cout << name + ":\n";
+					getline(cin, tempMessage);
+					m.set_name(name);
+					m.set_msg(tempMessage);
+					stream->Write(m);
+				}
+					// The following is used for bulk sending messages:
+					// notes.push_back(m);
+					// for (const ChatMsg& note : notes) {
+					// 	std::cout << "Sending:\n" << note.msg() << std::endl;
+					// 	stream->Write(note);
+					// }
+					
+				// Close the thread/connection and stop chatting
+	      stream->WritesDone();
+	    });
+			
+			// The current thread continues 
+	    ChatMsg server_note;
+	    while (stream->Read(&server_note)) {
+	      std::cout << "Got message " << server_note.msg() << std::endl;
+	    }
+	    writer.join();
+	    Status status = stream->Finish();
+	    if (!status.ok()) {
+	      std::cout << "chat rpc failed." << std::endl;
+	    }
+	  }
+
 };
 
-void commandMode(chatServiceClient* client) {
+bool commandMode(chatServiceClient* client) {
     string input;
     string delimiter = " ";
     getline(cin, input);
-
+		int isInChatMode = false;
+		
     size_t pos = 0;
     vector<string> tokens;
 
@@ -119,11 +168,13 @@ void commandMode(chatServiceClient* client) {
     }
     else if (tokens[0] == "CHAT") {
         cout<<"Going to chat.\n";
-       // client->chat();
+       client->chat();
+			 isInChatMode = true;
     }
     else {
         cout << tokens[0] << " is not a valid command! Please enter LIST, JOIN, LEAVE, or CHAT: \n";
     }
+		return isInChatMode;
 }
 
 int main(int argc, char* argv[]) {
@@ -148,8 +199,10 @@ int main(int argc, char* argv[]) {
     client.user();
     
     while (!chatMode) {
-        commandMode(&client);
+      chatMode = commandMode(&client);
     }
-    
+		// The chat threads will handle chatting
+		// The main thread will wait untill closing time
+    while(true){}
     return 0;
 }
