@@ -107,21 +107,30 @@ class chatServiceClient {
     
 	  void chat() {
 	    ClientContext context;
-			string name = this->userinput;
+			static string name = this->userinput;
 	    std::shared_ptr<ClientReaderWriter<ChatMsg, ChatMsg> > stream(
 	        stub->chat(&context));
 			
-			// Starts a new thread for sending messages to the server
+			// Thread; Takes keyboard input and sends to server
 	    std::thread writer([stream]() {
 	      std::vector<ChatMsg> notes;
 				ChatMsg m = ChatMsg();
-				m.set_name("test name");
-				m.set_msg("Hi Hi");
-				notes.push_back(m);
-	      for (const ChatMsg& note : notes) {
-	        std::cout << "Sending:\n" << note.msg() << std::endl;
-	        stream->Write(note);
-	      }
+				string tempMessage = "";
+				while (true){
+					cout << name + ":\n";
+					getline(cin, tempMessage);
+					m.set_name(name);
+					m.set_msg(tempMessage);
+					stream->Write(m);
+				}
+					// The following is used for bulk sending messages:
+					// notes.push_back(m);
+					// for (const ChatMsg& note : notes) {
+					// 	std::cout << "Sending:\n" << note.msg() << std::endl;
+					// 	stream->Write(note);
+					// }
+					
+				// Close the thread/connection and stop chatting
 	      stream->WritesDone();
 	    });
 			
@@ -139,11 +148,12 @@ class chatServiceClient {
 
 };
 
-void commandMode(chatServiceClient* client) {
+bool commandMode(chatServiceClient* client) {
     string input;
     string delimiter = " ";
     getline(cin, input);
-
+		int isInChatMode = false;
+		
     size_t pos = 0;
     vector<string> tokens;
 
@@ -173,10 +183,12 @@ void commandMode(chatServiceClient* client) {
     else if (tokens[0] == "CHAT") {
         cout<<"Going to chat.\n";
        client->chat();
+			 isInChatMode = true;
     }
     else {
         cout << tokens[0] << " is not a valid command! Please enter LIST, JOIN, LEAVE, or CHAT: \n";
     }
+		return isInChatMode;
 }
 
 int main(int argc, char* argv[]) {
@@ -201,8 +213,10 @@ int main(int argc, char* argv[]) {
     client.user();
     
     while (!chatMode) {
-        commandMode(&client);
+      chatMode = commandMode(&client);
     }
-    
+		// The chat threads will handle chatting
+		// The main thread will wait untill closing time
+    while(true){}
     return 0;
 }
