@@ -66,19 +66,19 @@ using chatserver::Requests;
 
 bool chatMode = false; //client starts in commandMode
 
+ChatMsg makeMessage(const std::string& username, const std::string& message) {
+	ChatMsg m;
+	m.set_name(username);
+	m.set_msg(message);
+	return m;
+}
+
 class chatServiceClient {
     private: 
     unique_ptr<commandService::Stub> stub;
-    string userinput;
     
-		ChatMsg makeMessage(const std::string& message) {
-			ChatMsg m;
-			m.set_name(userinput);
-			m.set_msg(message);
-			return m;
-		}
-		
     public:
+			string userinput;
     chatServiceClient(string address, string name) {
         // create a new channel to server
         shared_ptr<Channel> channel = grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
@@ -105,6 +105,38 @@ class chatServiceClient {
         }
     }
     
+	  void chat() {
+	    ClientContext context;
+			string name = this->userinput;
+	    std::shared_ptr<ClientReaderWriter<ChatMsg, ChatMsg> > stream(
+	        stub->chat(&context));
+			
+			// Starts a new thread for sending messages to the server
+	    std::thread writer([stream]() {
+	      std::vector<ChatMsg> notes;
+				ChatMsg m = ChatMsg();
+				m.set_name("test name");
+				m.set_msg("Hi Hi");
+				notes.push_back(m);
+	      for (const ChatMsg& note : notes) {
+	        std::cout << "Sending:\n" << note.msg() << std::endl;
+	        stream->Write(note);
+	      }
+	      stream->WritesDone();
+	    });
+			
+			// The current thread continues 
+	    ChatMsg server_note;
+	    while (stream->Read(&server_note)) {
+	      std::cout << "Got message " << server_note.msg() << std::endl;
+	    }
+	    writer.join();
+	    Status status = stream->Finish();
+	    if (!status.ok()) {
+	      std::cout << "chat rpc failed." << std::endl;
+	    }
+	  }
+
 };
 
 void commandMode(chatServiceClient* client) {
@@ -140,7 +172,7 @@ void commandMode(chatServiceClient* client) {
     }
     else if (tokens[0] == "CHAT") {
         cout<<"Going to chat.\n";
-       // client->chat();
+       client->chat();
     }
     else {
         cout << tokens[0] << " is not a valid command! Please enter LIST, JOIN, LEAVE, or CHAT: \n";
