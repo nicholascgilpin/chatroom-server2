@@ -117,15 +117,60 @@ void printUserList(){
     }
 }
 
-string processSubscription(string user, string userToSubscribeTo){
-    string response;
 
-    if(checkUserList(user) == false){
-        response = "Invalid user input.\n";
-        return response;
+/*void printSpecificTimelines(string username){
+    if(timelineList.size() == NULL){
+        cout<<"Timeline List is empty";
+    }   
+    else {
+        for(int i = 0; i < timelineList.size(); i++){
+            cout<< "Username from Print All Timeline List: " + timelineList[i].name() + "\n";
+        }
+    }
+}*/
+
+string processListRequest(string username){
+    string allTimelines = "All Users:\n [";
+    string usersTimelines = "Your Subscriptions:\n [";
+    string messageToSend = "";
+    int temp;
+
+    for (int i = 0; i < timelineList.size(); i++){
+        if(timelineList[i].name() == username){
+            cout<<"\nIn processListRequest: Found user!\n"; //Bugfixing print, comment out later
+            temp = i;
+            break;
+        }
     }
 
+    for(int i = 0; i < userList.size(); i++){
+        allTimelines += userList[i].name() + ",\n";
+    }
+    allTimelines += "]\n";
+
+
+    if( timelineList[temp].subscribed_size() == 0){
+        usersTimelines = "You are not subscribed to anyone.]\n";
+    }
+    else{
+        for(int j = 0; j < timelineList[temp].subscribed_size(); j++){
+            usersTimelines += timelineList[temp].subscribed(j) + ",\n";
+        }
+        usersTimelines += "]\n";
+    }
+
+    messageToSend = allTimelines + "__________________________________________\n" + usersTimelines;
+    return messageToSend;
+    
+}
+
+string processSubscription(string user, string userToSubscribeTo){
+    string response;
+    int temp = 0;
+    cout<<"\nIn processSubscription\n";
+
     if(checkUserList(userToSubscribeTo) == false){
+        cout<<"\nInvalid user input from client, no user to subscribe to.\n";
         response = "Cannot join user: " + userToSubscribeTo +" user does not exist.\n";
         return response;
     }
@@ -134,33 +179,49 @@ string processSubscription(string user, string userToSubscribeTo){
         response = "You cannot subscribe to yourself.\n";
         return response;
     }
-    else{
-        for (int i = 0; i < timelineList.size(); i++){
-            if(timelineList[i].name() == user){
-                for(int j = 0; j < timelineList[i].subscribed_size(); j++){
-                    if(timelineList[i].subscribed(j) == userToSubscribeTo){
-                        response = "You are already subscribed to: " + userToSubscribeTo + "\n";
-                        return response;
-                    }
-                    else{
-                        string* temp = timelineList[i].add_subscribed();
-                        *temp = userToSubscribeTo;
-                      //  timelineList[i].subscribed(i).push_back(userToSubscribeTo);
-                        response = "Subscribed to: " + userToSubscribeTo + "\n";
-                        return response;      
 
-                    }
-                }
-            }
-            else{
-                response = "Error in join function.\n";
+    for (int i = 0; i < timelineList.size(); i++){
+        if(timelineList[i].name() == user){
+            cout<<"\nIn process subscription: Found user!\n"; //Bugfixing print, comment out later
+            temp = i;
+            break;
+        }
+    }
+
+  //  cout<< "\nBefore second for. Temp is: " << temp << "\n"; //Bugfixing print, comment out later
+ //   cout<< "\nChecking timeline list: " << timelineList[temp].subscribed_size() << "\n"; //Bugfixing print, comment out later
+
+    if(timelineList[temp].subscribed_size() == 0){
+        string* hold = timelineList[temp].add_subscribed();
+        *hold = userToSubscribeTo;
+        //  timelineList[i].subscribed(i).push_back(userToSubscribeTo);
+        response = "Server Response: Subscribed to: " + userToSubscribeTo + "\n";
+        return response;  
+    }
+    else{
+        for(int j = 0; j < timelineList[temp].subscribed_size(); j++){
+        //    cout<< "Subscribed size: " << timelineList[temp].subscribed_size() << endl; //Bugfixing print, comment out later
+            
+            if(timelineList[temp].subscribed(j) == userToSubscribeTo){
+                response = "You are already subscribed to: " + userToSubscribeTo + "\n";
                 return response;
+            }
+            else {
+                string* hold = timelineList[temp].add_subscribed();
+                *hold = userToSubscribeTo;
+                //  timelineList[i].subscribed(i).push_back(userToSubscribeTo);
+                response = "Server Response: Subscribed to: " + userToSubscribeTo + "\n";
+                return response;  
             }
         }
     }
-    // Bob has his own timeline
-}//timeline list has a data structure called subscribed; this is who Bob is following
 
+    response = "Error in join function.\n";
+    return response;
+}
+    
+    // Bob has his own timeline
+//timeline list has a data structure called subscribed; this is who Bob is following
 
 class chatServiceServer final : public commandService::Service {
     public:
@@ -180,10 +241,19 @@ class chatServiceServer final : public commandService::Service {
         printUserList();
         if(checkUserList(request->loginrequest()) == false){
             clientUser newUser = clientUser();
+            timeline newUserTimeline = timeline();
+
             newUser.set_name(request->loginrequest());
+            newUserTimeline.set_name(request->loginrequest());
+
             cout<<"\nPushing back new user: " + newUser.name() + "\n";
+
             userList.push_back(newUser);
+            timelineList.push_back(newUserTimeline);
+
             printUserList();
+            //printAllTimelines();
+
             cout<<"Size of list: " << userList.size() << "\n";
             reply->set_loginreply("Welcome, " + request->loginrequest() + "\n");
             return Status::OK;
@@ -195,21 +265,28 @@ class chatServiceServer final : public commandService::Service {
             return Status::OK;
         }
     }
+
+    Status List(ServerContext* context, const Requests* listRequest,
+                    Requests* reply) override {
+        cout << "Server in List\n";
+        reply->set_listreply(processListRequest(listRequest->loginrequest()));
+            //"Joined Chat Room " + statusPost->name() + "\n");
+        return Status::OK;
+    }
 		
-		Status chat(ServerContext* context,
-                 ServerReaderWriter<ChatMsg, ChatMsg>* stream) override {
-  std::vector<ChatMsg> received_log;
-  ChatMsg recved;
-	ChatMsg reply;
+	Status chat(ServerContext* context,
+                    ServerReaderWriter<ChatMsg, ChatMsg>* stream) override {
+        std::vector<ChatMsg> received_log;
+        ChatMsg recved;
+	       ChatMsg reply;
 	// Read in a message, reply with some messages, repeat
-  while (stream->Read(&recved)) {
+        while (stream->Read(&recved)) {
 		// @TODO: We can respond with subscriptions in future versions
 		// untill we can gather messages, this rpc will simply echo back messages
-		stream->Write(recved);
-		sleep(2); // Keep the terminals readable by not replying like a maniac 
-  }
-
-  return Status::OK;
+		  stream->Write(recved);
+		  sleep(2); // Keep the terminals readable by not replying like a maniac 
+        }
+        return Status::OK;
 	}
 };
 

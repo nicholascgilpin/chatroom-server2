@@ -67,6 +67,7 @@ message Requests{
 	string loginreply = 2;
 	string joinrequest = 3;
 	string joinreply = 4;
+	string listreply = 5;
 }
 
 service commandService{
@@ -78,6 +79,8 @@ service commandService{
 	rpc chat(stream ChatMsg) returns (stream ChatMsg){}
 
 	rpc User(Requests) returns (Requests){}
+
+	rpc List(Requests) returns (Requests) {}
 }
 
 

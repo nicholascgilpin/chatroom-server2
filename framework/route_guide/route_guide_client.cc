@@ -76,18 +76,35 @@ class chatServiceClient {
 
         userRequest.set_loginrequest(userinput);
         userRequest.set_joinrequest(subscribe);
-        cout<<"User: " + userinput + "Joining: " + subscribe + "\n";
+        cout<<"User: " + userinput + " Attempting to Join: " + subscribe + "\n";
         
         ClientContext context;
         Status status = stub->Join(&context, userRequest, &userRequest);
         if (!status.ok()) {
-            cout << "Error Occured: Server Cannot Login.\n";
+            cout << "Error Occured: Server Cannot Join.\n";
         }
         else {
             // print server's reply
+           // cout << "You've subscribed to: " + subscribe + "\n";
             cout << userRequest.joinreply();
         }
     
+    }
+
+    void list(){
+        Requests listRequest;
+
+        listRequest.set_loginrequest(userinput);
+        ClientContext context;
+
+        Status status = stub->List(&context, listRequest, &listRequest);
+        if (!status.ok()) {
+            cout << "Error Occured: Server Cannot List.\n";
+        }
+        else {
+            // print server's reply
+            cout << listRequest.listreply();
+        }
     }
     
 	void chat() {
@@ -153,7 +170,7 @@ bool commandMode(chatServiceClient* client) {
 
     if (tokens[0] == "LIST") {
         cout<<"Printing List.\n";
-       //client->list();
+        client->list();
     }
     else if (tokens[0] == "JOIN" && tokens.size() == 2) {
         string chatRoom = tokens[1];
