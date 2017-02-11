@@ -122,6 +122,16 @@ int stamp(){
 	return serverCounter;
 }
 
+// Finds and returns a timeline pointer for user with nameX 
+timeline* getTimelinePointer(string nameX){
+	for (size_t i = 0; i < timelineList.size(); i++) {
+		if (nameX == timelineList[i].name()){
+			return &timelineList[i];
+		}
+	}
+	return NULL;
+}
+
 bool checkUserList(string username){
     for(int i = 0; i < userList.size(); i++){
         if(userList[i].name() == username){
@@ -214,7 +224,7 @@ class chatServiceServer final : public commandService::Service {
 			Stats reply;
 
 			recved.set_timestamp(stamp());
-
+			
 			// Read in a message, reply with some messages, repeat
 		  while (stream->Read(&recved)) {
 				// @TODO: We can respond with subscriptions in future versions
@@ -297,6 +307,7 @@ int main(int argc, char* argv[]) {
     }
 		initTimelineList(&timelineList);
 		TimelinesFromDisk(timelineList);
+		cout << getTimelinePointer("a")->name() << endl;
 		TimelinesToDisk(timelineList);
     startServer(portNumber);
     
