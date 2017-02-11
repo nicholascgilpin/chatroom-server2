@@ -90,9 +90,9 @@ class chatServiceClient {
     
     }
     
-	  void chat() {
-	  /*  ClientContext context;
-			static string name = this->userinput;
+	void chat() {
+        ClientContext context;
+		static string name = this->userinput;
 	    std::shared_ptr<ClientReaderWriter<ChatMsg, ChatMsg> > stream(
 	        stub->chat(&context));
 			
@@ -128,7 +128,7 @@ class chatServiceClient {
 	    Status status = stream->Finish();
 	    if (!status.ok()) {
 	      std::cout << "chat rpc failed." << std::endl;
-	    }*/
+	    }
 	  }
 
 };
