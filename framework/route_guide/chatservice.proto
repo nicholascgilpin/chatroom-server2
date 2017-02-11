@@ -21,12 +21,13 @@ message timeline {
 
 message TimelineDB{
 	repeated timeline timeline = 1; // Used to serialize all timelines
+	int32 serverCounter = 2; // Highest number = latest message
 }
 
 message Stats {
 	string name = 1;
 	string msg = 2;
-	int64 timeStamp = 3; // For requirements 10 & 11
+	int32 timeStamp = 3; // For requirements 10 & 11
 }
 
 message Commands {

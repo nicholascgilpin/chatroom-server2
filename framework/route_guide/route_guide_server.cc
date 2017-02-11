@@ -94,12 +94,16 @@ void initTimelineList(vector<timeline>* tl){
 	
 	s1->set_name("a");
 	s1->set_msg("Test message: Boba");
+	s1->set_timestamp(4);
 	s2->set_name("b");
 	s2->set_msg("Test message: Queso");
+	s2->set_timestamp(3);
 	s3->set_name("c");
 	s3->set_msg("Test message: Icecream");
+	s3->set_timestamp(1);
 	s4->set_name("c");
 	s4->set_msg("Test message: Chocolate");
+	s4->set_timestamp(2);
 	
 	tl->push_back(t1);
 	tl->push_back(t2);
@@ -110,6 +114,13 @@ void initTimelineList(vector<timeline>* tl){
 // Global Variables ////////////////////////////////////////////////////////////
 vector<clientUser> userList = vector<clientUser>();
 vector<timeline> timelineList = vector<timeline>(); // stores each person's timelines 
+int serverCounter = 0; // Acts as the server's clock; used for timestamps
+
+// Increments and returns the latest time; @TODO: add mutex locks in future
+int stamp(){
+	serverCounter += 1;
+	return serverCounter;
+}
 
 bool checkUserList(string username){
     for(int i = 0; i < userList.size(); i++){
@@ -201,6 +212,9 @@ class chatServiceServer final : public commandService::Service {
 		  std::vector<Stats> received_log;
 		  Stats recved;
 			Stats reply;
+
+			recved.set_timestamp(stamp());
+
 			// Read in a message, reply with some messages, repeat
 		  while (stream->Read(&recved)) {
 				// @TODO: We can respond with subscriptions in future versions
@@ -220,6 +234,8 @@ int TimelinesToDisk(vector<timeline> tl){
 		timeline* t = db.add_timeline();
 		*t = tl[i];
 	}
+	serverCounter += 10; // Ensure the server time is later than any message
+	db.set_servercounter(serverCounter);
 	std::string  fileName("Error in function TimelinesToDisk");
 	fileName = "db.bin";
 	fstream fs(fileName, ios::out | ios::trunc | ios::binary);
@@ -244,12 +260,11 @@ int TimelinesFromDisk(vector<timeline> tl){
   }	
 	else{
 		cout << " Chat logs found!\n";
+		cout << db.DebugString();
 		for (size_t i = 0; i < db.timeline_size(); i++) {
-			timeline temp = timeline(db.timeline(i));
-			// Enable to see what was read from disk
-			printf("\n%s\n-------------------\n", temp.DebugString().c_str()); 
-			tl.push_back(temp);
+			tl.push_back(timeline(db.timeline(i)));
 		}
+		serverCounter = db.servercounter();
 	}
 	return 0;
 }
