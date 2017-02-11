@@ -145,7 +145,7 @@ bool checkUserList(string username){
 }
 
 void printUserList(){
-    if(userList.size() == NULL){
+    if(userList.size() == 0){
         cout<<"Userlist is empty";
     }   
     else {
