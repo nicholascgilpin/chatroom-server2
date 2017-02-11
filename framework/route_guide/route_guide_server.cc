@@ -133,13 +133,25 @@ timeline* getTimelinePointer(string nameX){
 }
 
 bool checkUserList(string username){
+    cout<<"Size of list: " << userList.size() << "\n";
     for(int i = 0; i < userList.size(); i++){
         if(userList[i].name() == username){
-            cout<<"username: " + username;
+            cout<<"username: " + username + " exists!\n";
             return true;
         }           
-        else
-            return false;
+    }
+    cout<<"Username " + username + " Does not exist.\n";
+    return false;
+}
+
+void printUserList(){
+    if(userList.size() == NULL){
+        cout<<"Userlist is empty";
+    }   
+    else {
+        for(int i = 0; i < userList.size(); i++){
+            cout<< "Username from Print User List: " + userList[i].name() + "\n";
+        }
     }
 }
 
@@ -147,17 +159,17 @@ string processSubscription(string user, string userToSubscribeTo){
     string response;
 
     if(checkUserList(user) == false){
-        response = "Invalid user input.";
+        response = "Invalid user input.\n";
         return response;
     }
 
     if(checkUserList(userToSubscribeTo) == false){
-        response = "Cannot join user: " + userToSubscribeTo +" user does not exist.";
+        response = "Cannot join user: " + userToSubscribeTo +" user does not exist.\n";
         return response;
     }
     
     if(user == userToSubscribeTo){
-        response = "You cannot subscribe to yourself.";
+        response = "You cannot subscribe to yourself.\n";
         return response;
     }
     else{
@@ -165,14 +177,14 @@ string processSubscription(string user, string userToSubscribeTo){
             if(timelineList[i].name() == user){
                 for(int j = 0; j < timelineList[i].subscribed_size(); j++){
                     if(timelineList[i].subscribed(j) == userToSubscribeTo){
-                        response = "You are already subscribed to: " + userToSubscribeTo;
+                        response = "You are already subscribed to: " + userToSubscribeTo + "\n";
                         return response;
                     }
                     else{
                         string* temp = timelineList[i].add_subscribed();
                         *temp = userToSubscribeTo;
                       //  timelineList[i].subscribed(i).push_back(userToSubscribeTo);
-                        response = "Subscribed to: " + userToSubscribeTo;
+                        response = "Subscribed to: " + userToSubscribeTo + "\n";
                         return response;      
 
                     }
@@ -203,18 +215,23 @@ class chatServiceServer final : public commandService::Service {
 
     Status User(ServerContext* context, const Requests* request, Requests* reply) override {
         cout << "Server in User function\n";
-        if(!checkUserList(request->loginrequest())){
+        printUserList();
+        if(checkUserList(request->loginrequest()) == false){
             clientUser newUser = clientUser();
             newUser.set_name(request->loginrequest());
-            cout<<"\n  in User function: newUser: " + newUser.name();
+            cout<<"\nPushing back new user: " + newUser.name() + "\n";
             userList.push_back(newUser);
+            printUserList();
+            cout<<"Size of list: " << userList.size() << "\n";
+            reply->set_loginreply("Welcome, " + request->loginrequest() + "\n");
+            return Status::OK;
         }
-        cout << "\n Current userlist \n";
-        for (size_t i = 0; i < userList.size(); i++) {
-        	cout << userList[i].name() << endl;
+        else{
+            cout << "\nAcessing userlist\n";
+            printUserList();
+            reply->set_loginreply("Welcome, " + request->loginrequest() + "\n");
+            return Status::OK;
         }
-        reply->set_loginreply("Welcome, " + request->loginrequest() + "\n");
-        return Status::OK;
     }
 		
 		Status chat(ServerContext* context,
@@ -244,8 +261,10 @@ int TimelinesToDisk(vector<timeline> tl){
 		timeline* t = db.add_timeline();
 		*t = tl[i];
 	}
+	
 	serverCounter += 10; // Ensure the server time is later than any message
 	db.set_servercounter(serverCounter);
+	
 	std::string  fileName("Error in function TimelinesToDisk");
 	fileName = "db.bin";
 	fstream fs(fileName, ios::out | ios::trunc | ios::binary);
@@ -265,7 +284,7 @@ int TimelinesFromDisk(vector<timeline> tl){
 	cout << "Checking for chat logs...";
 	fstream input(fileName, ios::in | ios::binary);
   if (!db.ParseFromIstream(&input)) {
-    cout << " No chat logs found." << endl;
+    cout << " No chat logs found.\n" << endl;
     return -1;
   }	
 	else{
