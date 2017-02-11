@@ -13,18 +13,6 @@ package chatserver;
 // [END declaration]
 
 // [START messages]
-message Stats {
-  string name = 1; // client username
-  string msg = 2; // message content
-	
-
-  enum MsgType {
-    CHAT = 0;
-    COMMAND = 1;
-  }
-
-}
-
 message timeline {
   repeated Stats statuses = 1;
 	string name = 2; // client, used for room name
@@ -33,12 +21,13 @@ message timeline {
 
 message TimelineDB{
 	repeated timeline timeline = 1; // Used to serialize all timelines
+	int32 serverCounter = 2; // Highest number = latest message
 }
 
-message ChatMsg {
+message Stats {
 	string name = 1;
 	string msg = 2;
-	int64 timeStamp = 3; // For requirements 10 & 11
+	int32 timeStamp = 3; // For requirements 10 & 11
 }
 
 message Commands {
@@ -54,7 +43,7 @@ message Commands {
 
 message clientUser {
 	string name = 1;
-	repeated ChatMsg log = 2; //All name's messages
+	repeated Stats log = 2; //All name's messages
 	repeated clientUser subscription = 3;
 }
 
@@ -76,7 +65,7 @@ service commandService{
 
 	rpc Join(Requests) returns (Requests) {}
 
-	rpc chat(stream ChatMsg) returns (stream ChatMsg){}
+	rpc chat(stream Stats) returns (stream Stats){}
 
 	rpc User(Requests) returns (Requests){}
 

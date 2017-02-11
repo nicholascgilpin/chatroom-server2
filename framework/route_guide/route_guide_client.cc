@@ -1,3 +1,36 @@
+/*
+ *
+ * Copyright 2015, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -21,18 +54,19 @@ using grpc::ClientReader;
 using grpc::ClientReaderWriter;
 using grpc::ClientWriter;
 using grpc::Status;
-using chatserver::ChatMsg;
-using chatserver::timeline;
 using chatserver::Stats;
+using chatserver::timeline;
 using chatserver::JoinRequest;
 using chatserver::clientUser;
 using chatserver::commandService;
 using chatserver::Requests;
+//using chatserver::commandService;
+//using chatserver::chatStream;
 
 bool chatMode = false; //client starts in commandMode
 
-ChatMsg makeMessage(const std::string& username, const std::string& message) {
-	ChatMsg m;
+Stats makeMessage(const std::string& username, const std::string& message) {
+	Stats m;
 	m.set_name(username);
 	m.set_msg(message);
 	return m;
@@ -59,7 +93,6 @@ class chatServiceClient {
         Requests userRequest;
 
         userRequest.set_loginrequest(userinput);
-
         ClientContext context;
         Status status = stub->User(&context, userRequest, &userRequest);
         if (!status.ok()) {
@@ -107,16 +140,16 @@ class chatServiceClient {
         }
     }
     
-	void chat() {
-        ClientContext context;
-		static string name = this->userinput;
-	    std::shared_ptr<ClientReaderWriter<ChatMsg, ChatMsg> > stream(
+	  void chat() {
+	    ClientContext context;
+			static string name = this->userinput;
+	    std::shared_ptr<ClientReaderWriter<Stats, Stats> > stream(
 	        stub->chat(&context));
 			
 			// Thread; Takes keyboard input and sends to server
 	    std::thread writer([stream]() {
-	      std::vector<ChatMsg> notes;
-				ChatMsg m = ChatMsg();
+	      std::vector<Stats> notes;
+				Stats m = Stats();
 				string tempMessage = "";
 				while (true){
 					cout << name + ":\n";
@@ -127,7 +160,7 @@ class chatServiceClient {
 				}
 					// The following is used for bulk sending messages:
 					// notes.push_back(m);
-					// for (const ChatMsg& note : notes) {
+					// for (const Stats& note : notes) {
 					// 	std::cout << "Sending:\n" << note.msg() << std::endl;
 					// 	stream->Write(note);
 					// }
@@ -137,7 +170,7 @@ class chatServiceClient {
 	    });
 			
 			// The current thread continues 
-	    ChatMsg server_note;
+	    Stats server_note;
 	    while (stream->Read(&server_note)) {
 	      std::cout << server_note.name() << ":" << server_note.msg() << std::endl;
 	    }
@@ -175,8 +208,7 @@ bool commandMode(chatServiceClient* client) {
     else if (tokens[0] == "JOIN" && tokens.size() == 2) {
         string chatRoom = tokens[1];
         cout<<"Subscribing to: " + chatRoom + "\n";
-        client->join(chatRoom);
-
+       // client->join(chatRoom);
     }
     else if (tokens[0] == "LEAVE" && tokens.size() == 2) {
         string chatRoom = tokens[1];
