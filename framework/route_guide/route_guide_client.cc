@@ -48,7 +48,7 @@ class chatServiceClient {
         // create a new channel to server
         shared_ptr<Channel> channel = grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
         
-        cout << "Client "+ userinput +" is connected on: " << address << endl;
+        cout << "Client "+ userinput +" is connected on: " << address << "\n";
         
         stub = commandService::NewStub(channel);
 
@@ -91,7 +91,7 @@ class chatServiceClient {
     }
     
 	  void chat() {
-	    ClientContext context;
+	  /*  ClientContext context;
 			static string name = this->userinput;
 	    std::shared_ptr<ClientReaderWriter<ChatMsg, ChatMsg> > stream(
 	        stub->chat(&context));
@@ -128,7 +128,7 @@ class chatServiceClient {
 	    Status status = stream->Finish();
 	    if (!status.ok()) {
 	      std::cout << "chat rpc failed." << std::endl;
-	    }
+	    }*/
 	  }
 
 };
@@ -168,8 +168,8 @@ bool commandMode(chatServiceClient* client) {
     }
     else if (tokens[0] == "CHAT") {
         cout<<"Going to chat.\n";
-       client->chat();
-			 isInChatMode = true;
+      // client->chat();
+		//	 isInChatMode = true;
     }
     else {
         cout << tokens[0] << " is not a valid command! Please enter LIST, JOIN, LEAVE, or CHAT: \n";
@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
         name = argv[3];
     }
     else{
-        cerr << "Usage: hostName portNumber userName " << endl;
+        cerr << "Usage: hostName portNumber userName \n" << endl;
         return 0;
     }
 
