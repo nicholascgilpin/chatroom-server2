@@ -1,4 +1,4 @@
-/*
+	/*
  *
  * Copyright 2015, Google Inc.
  * All rights reserved.
@@ -56,10 +56,9 @@ using grpc::ServerReader;
 using grpc::ServerReaderWriter;
 using grpc::ServerWriter;
 using grpc::Status;
-using chatserver::ChatMsg;
+using chatserver::Stats;
 using chatserver::timeline;
 using chatserver::JoinRequest;
-using chatserver::Stats;
 using chatserver::clientUser;
 using chatserver::commandService;
 using chatserver::Requests;
@@ -68,26 +67,44 @@ using chatserver::TimelineDB;
 //using chatserver::chatStream;
 
 // Debugging Code /////////////////////////////////////////////////////////////
-// Create a test timeline list
+// Create a test timeline list (Only simulates create/diskIO)
 void initTimelineList(vector<timeline>* tl){
+	
 	timeline t1 = timeline();
-	t1.set_name("Alice");
-	Stats* s1 = t1.add_statuses();
-	s1->set_name("Alice");
-	s1->set_msg("Hi");
-	Stats* s2 = t1.add_statuses();
-	s2->set_name("Bob");
-	s2->set_msg("Hi");
-	tl->push_back(t1);
 	timeline t2 = timeline();
-	t2.set_name("Bob");
+	timeline t3 = timeline();
+
+	
+	string* sub1 = t1.add_subscribed();
+	string* sub2 = t1.add_subscribed();
+	string* sub3 = t3.add_subscribed();
+	
+	*sub1 = "b";
+	*sub2 = "c";
+	*sub3 = "a";
+	
+	t1.set_name("a");
+	t2.set_name("b");
+	
+	
+	Stats* s1 = t1.add_statuses();
+	Stats* s2 = t1.add_statuses();
 	Stats* s3 = t2.add_statuses();
-	s3->set_name("Alice2");
-	s3->set_msg("Hi2");
 	Stats* s4 = t2.add_statuses();
-	s4->set_name("Bob2");
-	s4->set_msg("Hi2");
+	
+	s1->set_name("a");
+	s1->set_msg("Test message: Boba");
+	s2->set_name("b");
+	s2->set_msg("Test message: Queso");
+	s3->set_name("c");
+	s3->set_msg("Test message: Icecream");
+	s4->set_name("c");
+	s4->set_msg("Test message: Chocolate");
+	
+	tl->push_back(t1);
 	tl->push_back(t2);
+	
+	
 }
 
 // Global Variables ////////////////////////////////////////////////////////////
@@ -171,27 +188,28 @@ class chatServiceServer final : public commandService::Service {
             cout<<"\n  in User function: newUser: " + newUser.name();
             userList.push_back(newUser);
         }
-        cout << "\n Acessing userlist";
-        cout<<"\n  in User function: newUser: " + userList[0].name();
+        cout << "\n Current userlist \n";
+        for (size_t i = 0; i < userList.size(); i++) {
+        	cout << userList[i].name() << endl;
+        }
         reply->set_loginreply("Welcome, " + request->loginrequest() + "\n");
         return Status::OK;
     }
 		
 		Status chat(ServerContext* context,
-                 ServerReaderWriter<ChatMsg, ChatMsg>* stream) override {
-  std::vector<ChatMsg> received_log;
-  ChatMsg recved;
-	ChatMsg reply;
-	// Read in a message, reply with some messages, repeat
-  while (stream->Read(&recved)) {
-		// @TODO: We can respond with subscriptions in future versions
-		// untill we can gather messages, this rpc will simply echo back messages
-		stream->Write(recved);
-		sleep(2); // Keep the terminals readable by not replying like a maniac 
-  }
-
-  return Status::OK;
-	}
+                 ServerReaderWriter<Stats, Stats>* stream) override {
+		  std::vector<Stats> received_log;
+		  Stats recved;
+			Stats reply;
+			// Read in a message, reply with some messages, repeat
+		  while (stream->Read(&recved)) {
+				// @TODO: We can respond with subscriptions in future versions
+				// untill we can gather messages, this rpc will simply echo back messages
+				stream->Write(recved);
+				sleep(2); // Keep the terminals readable by not replying like a maniac 
+			}
+  	return Status::OK;
+		}
 };
 
 // Write each person's chatroom/timeline to the disk in a binary format
@@ -227,7 +245,10 @@ int TimelinesFromDisk(vector<timeline> tl){
 	else{
 		cout << " Chat logs found!\n";
 		for (size_t i = 0; i < db.timeline_size(); i++) {
-			tl.push_back(timeline(db.timeline(i)));
+			timeline temp = timeline(db.timeline(i));
+			// Enable to see what was read from disk
+			printf("\n%s\n-------------------\n", temp.DebugString().c_str()); 
+			tl.push_back(temp);
 		}
 	}
 	return 0;
@@ -259,9 +280,10 @@ int main(int argc, char* argv[]) {
     if (argc >= 2) {
         portNumber = argv[1];
     }
+		initTimelineList(&timelineList);
 		TimelinesFromDisk(timelineList);
-    startServer(portNumber);
 		TimelinesToDisk(timelineList);
+    startServer(portNumber);
     
     return 0;
 }
