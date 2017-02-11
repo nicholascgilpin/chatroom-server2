@@ -38,6 +38,7 @@
 #include <memory>
 #include <string>
 #include <fstream>
+#include <unistd.h>
 
 #include <grpc/grpc.h>
 #include <grpc++/server.h>
@@ -175,6 +176,22 @@ class chatServiceServer final : public commandService::Service {
         reply->set_loginreply("Welcome, " + request->loginrequest() + "\n");
         return Status::OK;
     }
+		
+		Status chat(ServerContext* context,
+                 ServerReaderWriter<ChatMsg, ChatMsg>* stream) override {
+  std::vector<ChatMsg> received_log;
+  ChatMsg recved;
+	ChatMsg reply;
+	// Read in a message, reply with some messages, repeat
+  while (stream->Read(&recved)) {
+		// @TODO: We can respond with subscriptions in future versions
+		// untill we can gather messages, this rpc will simply echo back messages
+		stream->Write(recved);
+		sleep(2); // Keep the terminals readable by not replying like a maniac 
+  }
+
+  return Status::OK;
+	}
 };
 
 // Write each person's chatroom/timeline to the disk in a binary format

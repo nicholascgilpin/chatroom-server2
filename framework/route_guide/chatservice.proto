@@ -75,7 +75,7 @@ service commandService{
 
 	rpc Join(Requests) returns (Requests) {}
 
-	rpc chatStream(ChatMsg) returns (Stats){}
+	rpc chat(stream ChatMsg) returns (stream ChatMsg){}
 
 	rpc User(Requests) returns (Requests){}
 }

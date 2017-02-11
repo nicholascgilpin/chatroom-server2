@@ -122,7 +122,7 @@ class chatServiceClient {
 			// The current thread continues 
 	    ChatMsg server_note;
 	    while (stream->Read(&server_note)) {
-	      std::cout << "Got message " << server_note.msg() << std::endl;
+	      std::cout << server_note.name() << ":" << server_note.msg() << std::endl;
 	    }
 	    writer.join();
 	    Status status = stream->Finish();
