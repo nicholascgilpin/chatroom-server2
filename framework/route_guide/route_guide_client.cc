@@ -148,7 +148,7 @@ class chatServiceClient {
 
         ClientContext context;
 
-        Status status = stub->Leave(&context, listRequest, &listRequest);
+        Status status = stub->Leave(&context, leaveChatroom, &leaveChatroom);
         if (!status.ok()) {
             cout << "Error Occured: Server Cannot List.\n";
         }

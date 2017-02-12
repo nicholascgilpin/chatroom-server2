@@ -296,43 +296,86 @@ string processSubscription(string user, string userToSubscribeTo){
     return response;
 }
 
+//Process Leave command.
 string processUnsubscribe(string username, string chatroom){
     string response;
     int temp = 0;
+    int temp2 = 0;
     cout<<"\nIn processUnsubscribe\n";
 
+    //If the chatroom doesnt exist, don't try to leave anything
     if(checkUserList(chatroom) == false){
         cout<<"\nInvalid user input from client, no user to unsubscribe from.\n";
-        response = "Cannot Leave user: " + userToSubscribeTo +" does not exist.\n";
+        response = "Cannot Leave user: " + chatroom +" does not exist.\n";
         return response;
     }
     
-    if(user == chatroom){
+    //Users cannot unsub from themselves cuz why???
+    if(username == chatroom){
         response = "You cannot leave yourself.\n";
         return response;
     }
 
+    //Get location of username's timeline from timeline list.
     for (int i = 0; i < timelineList.size(); i++){
-        if(timelineList[i].name() == user){
+        if(timelineList[i].name() == username){
             cout<<"\nIn processUnsubscribe: Found user!\n"; //Bugfixing print, comment out later
             temp = i;
             break;
         }
     }
 
+    //If the user isn't subscribed to anyone, don't try to leave anything.
     if(timelineList[temp].subscribed_size() == 0){
-        //  timelineList[i].subscribed(i).push_back(userToSubscribeTo);
         response = "You cannot leave anyone as you are not subscribed to anyone.\n";
         return response;  
     }
     else{
+        //GRPC Proto buffers have no handler for removing an arbitrary array element
+        //So we have to handle it manually.
+        //We create a new list, copy everything but the room the user wants to leave, and store it 
+        //Back into the timelinelist.
+        timeline copyAllButOne = timeline();
+        copyAllButOne.set_name(username);
+
+        //Find index of the name of the chatroom the user wants to leave
         for(int j = 0; j < timelineList[temp].subscribed_size(); j++){
-            
+            if(timelineList[temp].subscribed(j) == chatroom){
+                cout<<"\nIn processUnsubscribe: Found chatroom!\n"; //Bugfixing print, comment out later
+                temp2 = j;
+                break;
+            }    
+        }    
+
+        //If the index of the chatroom is at index 0, copy the original list from 1 to end
+        if(temp2 == 0){
+            for(int h = 1; h < timelineList[temp].subscribed_size(); h++){
+                string* hold = copyAllButOne.add_subscribed();
+                *hold = timelineList[temp].subscribed(h);
+            }
+            timelineList[temp] = copyAllButOne;
+            response = "Unsubscribed from: " + chatroom + "\n";
+            return response;
+        }
+        else {
+            //Otherwise, copy up to the element and after the element into the copyAllButOne list.
+            for(int k = 0; k < temp2; k++){
+                string* hold = copyAllButOne.add_subscribed();
+                *hold = timelineList[temp].subscribed(k);
+            }
+        
+            for(int l = temp2+1; l < timelineList[temp].subscribed_size(); l++){
+                string* hold = copyAllButOne.add_subscribed();
+                *hold = timelineList[temp].subscribed(l);
+            }
+            //Set the original list to be the new copyAllButOne list, which contains all of the
+            //User's original chatrooms except for the one they left.
+            timelineList[temp] = copyAllButOne;
+            response = "Unsubscribed from: " + chatroom + "\n";
+            return response;
         }
     }
-
-
-
+    
     response = "Error in leave function.\n";
     return response;
 }
@@ -394,7 +437,7 @@ class chatServiceServer final : public commandService::Service {
     }
 
     Status Leave(ServerContext* context, const Requests* request, 
-                    Requests reply) override {
+                    Requests* reply) override {
         cout<< "Server in leave function\n";
         reply->set_leavereply(processUnsubscribe(request->loginrequest(), request->leaverequest()));
         return Status::OK;
