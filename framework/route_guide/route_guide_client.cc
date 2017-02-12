@@ -139,6 +139,24 @@ class chatServiceClient {
             cout << listRequest.listreply();
         }
     }
+
+    void leave(string chatroom){
+        Requests leaveChatroom;
+
+        leaveChatroom.set_loginrequest(userinput);
+        leaveChatroom.set_leaverequest(chatroom);
+
+        ClientContext context;
+
+        Status status = stub->Leave(&context, listRequest, &listRequest);
+        if (!status.ok()) {
+            cout << "Error Occured: Server Cannot List.\n";
+        }
+        else {
+            // print server's reply
+            cout << leaveChatroom.leavereply();
+        }
+    }
     
 	  void chat() {
 	    ClientContext context;
@@ -213,7 +231,7 @@ bool commandMode(chatServiceClient* client) {
     else if (tokens[0] == "LEAVE" && tokens.size() == 2) {
         string chatRoom = tokens[1];
         cout<<"Leaving: " + chatRoom + "\n";
-       // client->leave(chatRoom);
+        client->leave(chatRoom);
     }
     else if (tokens[0] == "CHAT") {
         cout<<"Going to chat.\n";

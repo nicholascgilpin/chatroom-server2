@@ -259,6 +259,47 @@ string processSubscription(string user, string userToSubscribeTo){
     response = "Error in join function.\n";
     return response;
 }
+
+string processUnsubscribe(string username, string chatroom){
+    string response;
+    int temp = 0;
+    cout<<"\nIn processUnsubscribe\n";
+
+    if(checkUserList(chatroom) == false){
+        cout<<"\nInvalid user input from client, no user to unsubscribe from.\n";
+        response = "Cannot Leave user: " + userToSubscribeTo +" does not exist.\n";
+        return response;
+    }
+    
+    if(user == chatroom){
+        response = "You cannot leave yourself.\n";
+        return response;
+    }
+
+    for (int i = 0; i < timelineList.size(); i++){
+        if(timelineList[i].name() == user){
+            cout<<"\nIn processUnsubscribe: Found user!\n"; //Bugfixing print, comment out later
+            temp = i;
+            break;
+        }
+    }
+
+    if(timelineList[temp].subscribed_size() == 0){
+        //  timelineList[i].subscribed(i).push_back(userToSubscribeTo);
+        response = "You cannot leave anyone as you are not subscribed to anyone.\n";
+        return response;  
+    }
+    else{
+        for(int j = 0; j < timelineList[temp].subscribed_size(); j++){
+            
+        }
+    }
+
+
+
+    response = "Error in leave function.\n";
+    return response;
+}
     
     // Bob has his own timeline
 //timeline list has a data structure called subscribed; this is who Bob is following
@@ -313,39 +354,45 @@ class chatServiceServer final : public commandService::Service {
                     Requests* reply) override {
         cout << "Server in List\n";
         reply->set_listreply(processListRequest(listRequest->loginrequest()));
-            //"Joined Chat Room " + statusPost->name() + "\n");
+        return Status::OK;
+    }
+
+    Status Leave(ServerContext* context, const Requests* request, 
+                    Requests reply) override {
+        cout<< "Server in leave function\n";
+        reply->set_leavereply(processUnsubscribe(request->loginrequest(), request->leaverequest()));
         return Status::OK;
     }
 		
-		Status chat(ServerContext* context,
-                 ServerReaderWriter<Stats, Stats>* stream) override {
-		  std::vector<Stats> received_log;
-		  Stats recved;
-			Stats reply;
-			timeline* mailbox;
-			
-			// Read in a message, reply with some messages, repeat
-		  while (stream->Read(&recved)) {
-				// Timestamp and store the message in this user's timeline
-				if ((mailbox = getTimelinePointer(recved.name())) == NULL) {
-					cerr << "Error: A client who doesn't exist is talking to us...\n";
-				}
-				else{
-					recved.set_timestamp(stamp());
-					Stats* temp = mailbox->add_statuses();
-					*temp = recved;
-				}
-				if (DEBUG) {
-					cout << "Mail box contents:\n" << mailbox->DebugString() << endl;
-				}
-				
-				// @TODO: We can respond with subscriptions in future versions
-				// untill we can gather messages, this rpc will simply echo back messages
-				stream->Write(recved);
-				sleep(2); // Keep the terminals readable by not replying like a maniac 
-			}
-  	return Status::OK;
+	Status chat(ServerContext* context,
+                    ServerReaderWriter<Stats, Stats>* stream) override {
+        std::vector<Stats> received_log;
+        Stats recved;
+        Stats reply;
+        timeline* mailbox;
+		
+		// Read in a message, reply with some messages, repeat
+	    while (stream->Read(&recved)) {
+            // Timestamp and store the message in this user's timeline
+            if ((mailbox = getTimelinePointer(recved.name())) == NULL) {
+            	cerr << "Error: A client who doesn't exist is talking to us...\n";
+            }
+            else{
+            	recved.set_timestamp(stamp());
+            	Stats* temp = mailbox->add_statuses();
+            	*temp = recved;
+            }
+            if (DEBUG) {
+            	cout << "Mail box contents:\n" << mailbox->DebugString() << endl;
+            }
+
+            // @TODO: We can respond with subscriptions in future versions
+            // untill we can gather messages, this rpc will simply echo back messages
+            stream->Write(recved);
+            sleep(2); // Keep the terminals readable by not replying like a maniac 
 		}
+        return Status::OK;
+   }
 };
 
 // Write each person's chatroom/timeline to the disk in a binary format
@@ -421,9 +468,10 @@ int main(int argc, char* argv[]) {
     if (argc >= 2) {
         portNumber = argv[1];
     }
-		TimelinesFromDisk(timelineList);
+
+	TimelinesFromDisk(timelineList);
     startServer(portNumber);
-		TimelinesToDisk(timelineList);
+	TimelinesToDisk(timelineList);
     
     return 0;
 }
