@@ -67,6 +67,8 @@ using chatserver::TimelineDB;
 //using chatserver::chatStream;
 
 // Debugging Code /////////////////////////////////////////////////////////////
+const bool DEBUG = false; // Toggles debugging print messages
+
 // Create a test timeline list (Only simulates create/diskIO)
 void initTimelineList(vector<timeline>* tl){
 	
@@ -213,22 +215,30 @@ class chatServiceServer final : public commandService::Service {
         return Status::OK;
     }
 
+		// Create a new timeline and user if one with name doesn't alrady exist
     Status User(ServerContext* context, const Requests* request, Requests* reply) override {
         cout << "Server in User function\n";
-        printUserList();
         if(checkUserList(request->loginrequest()) == false){
-            clientUser newUser = clientUser();
+						timeline newline = timeline();
+						clientUser newUser = clientUser();
+						
             newUser.set_name(request->loginrequest());
-            cout<<"\nPushing back new user: " + newUser.name() + "\n";
+						newline.set_name(request->loginrequest());
+						
             userList.push_back(newUser);
-            printUserList();
-            cout<<"Size of list: " << userList.size() << "\n";
+						timelineList.push_back(newline);
+
             reply->set_loginreply("Welcome, " + request->loginrequest() + "\n");
+						
+						if (DEBUG) {
+							cout<<"Size of user list: " << userList.size() << "\n";
+							cout<<"Size of timeline list: " << timelineList.size() << "\n";
+						}
+						
             return Status::OK;
         }
         else{
             cout << "\nAcessing userlist\n";
-            printUserList();
             reply->set_loginreply("Welcome, " + request->loginrequest() + "\n");
             return Status::OK;
         }
@@ -239,11 +249,23 @@ class chatServiceServer final : public commandService::Service {
 		  std::vector<Stats> received_log;
 		  Stats recved;
 			Stats reply;
-
-			recved.set_timestamp(stamp());
+			timeline* mailbox;
 			
 			// Read in a message, reply with some messages, repeat
 		  while (stream->Read(&recved)) {
+				// Timestamp and store the message in this user's timeline
+				if ((mailbox = getTimelinePointer(recved.name())) == NULL) {
+					cerr << "Error: A client who doesn't exist is talking to us...\n";
+				}
+				else{
+					recved.set_timestamp(stamp());
+					Stats* temp = mailbox->add_statuses();
+					*temp = recved;
+				}
+				if (DEBUG) {
+					cout << "Mail box contents:\n" << mailbox->DebugString() << endl;
+				}
+				
 				// @TODO: We can respond with subscriptions in future versions
 				// untill we can gather messages, this rpc will simply echo back messages
 				stream->Write(recved);
@@ -289,7 +311,9 @@ int TimelinesFromDisk(vector<timeline> tl){
   }	
 	else{
 		cout << " Chat logs found!\n";
-		cout << db.DebugString();
+		if (DEBUG) {
+			cout << db.DebugString();
+		}
 		for (size_t i = 0; i < db.timeline_size(); i++) {
 			tl.push_back(timeline(db.timeline(i)));
 		}
@@ -324,11 +348,9 @@ int main(int argc, char* argv[]) {
     if (argc >= 2) {
         portNumber = argv[1];
     }
-		initTimelineList(&timelineList);
 		TimelinesFromDisk(timelineList);
-		cout << getTimelinePointer("a")->name() << endl;
-		TimelinesToDisk(timelineList);
     startServer(portNumber);
+		TimelinesToDisk(timelineList);
     
     return 0;
 }
