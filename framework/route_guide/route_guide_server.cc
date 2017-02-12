@@ -134,13 +134,13 @@ timeline* getTimelinePointer(string nameX){
 }
 
 // Allow message ranking for sorting
-bool msgCompare(const Stats& l, const Stats& r){
-	return (l.timestamp() < r.timestamp());
+bool msgGreaterThan(const Stats& l, const Stats& r){
+	return (l.timestamp() > r.timestamp());
 }
 
 // Gets the most recent k messages for a person
-// If previousK < 0 then removes messages > previousK
-std::vector<Stats> getRecentMessages(string name, int k, int previousK){
+// mostRecentTime is the timestamp of the most recent message sent to client
+std::vector<Stats> getRecentMessages(string name, int k, int mostRecentTime){
 	std::vector<Stats> messages;
 	timeline* userTimeline = getTimelinePointer(name);
 	timeline* subbedTimeline; // Timeline of person to whom user is subscibed
@@ -155,12 +155,17 @@ std::vector<Stats> getRecentMessages(string name, int k, int previousK){
 				std::cerr << "Error: User " << name << " exists, but has no timeline!" << '\n';
 			} else {
 				for (size_t j = 0; j < subbedTimeline->statuses_size(); j++) {
-					messages.push_back(subbedTimeline->statuses(j));
+					if (subbedTimeline->statuses(j).timestamp() > mostRecentTime) {
+						messages.push_back(subbedTimeline->statuses(j));
+					}
 				}
 			}
 		}
 	}
-	std::sort(messages.begin(), messages.end(), msgCompare);
+	std::sort(messages.begin(), messages.end(), msgGreaterThan);
+	if ((messages.size() > k) && (k >= 0)) {
+		messages.resize(k);
+	}
 	if (DEBUG) {
 		cout << "Most recent 20 messages:\n";
 		for (size_t i = 0; i < messages.size(); i++) {
@@ -449,11 +454,15 @@ class chatServiceServer final : public commandService::Service {
 		  Stats recved;
 			Stats reply;
 			timeline* mailbox;
+			int mostRecentMessageSent = -1;
 			
 			// Send recent 20 messages on chat request
 			stream->Read(&recved);
 			std::vector<Stats> recentMsgs = getRecentMessages(recved.name(), 20, -1);
 			for (const Stats& msg : recentMsgs) {
+				if (msg.timestamp() > mostRecentMessageSent) {
+					mostRecentMessageSent = msg.timestamp();
+				}
 				stream->Write(msg);
 			}
 			// Read in a message, reply with some messages, repeat
@@ -471,10 +480,14 @@ class chatServiceServer final : public commandService::Service {
 					cout << "Mail box contents:\n" << mailbox->DebugString() << endl;
 				}
 				
-				// @TODO: We can respond with subscriptions in future versions
-				// untill we can gather messages, this rpc will simply echo back messages
-				stream->Write(recved);
-				sleep(2); // Keep the terminals readable by not replying like a maniac 
+				received_log = getRecentMessages(recved.name(), 20, mostRecentMessageSent);
+				for (const Stats& msg : received_log) {
+					if (msg.timestamp() > mostRecentMessageSent) {
+						mostRecentMessageSent = msg.timestamp();
+					}
+					stream->Write(msg);
+				}				
+				sleep(1); // Keep the terminals readable by not replying like a maniac 
 			}
 		}
 };
