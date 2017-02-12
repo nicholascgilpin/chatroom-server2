@@ -67,7 +67,7 @@ using chatserver::TimelineDB;
 //using chatserver::chatStream;
 
 // Debugging Code /////////////////////////////////////////////////////////////
-const bool DEBUG = false; // Toggles debugging print messages
+const bool DEBUG = true; // Toggles debugging print messages
 
 // Create a test timeline list (Only simulates create/diskIO)
 void initTimelineList(vector<timeline>* tl){
@@ -76,6 +76,9 @@ void initTimelineList(vector<timeline>* tl){
 	timeline t2 = timeline();
 	timeline t3 = timeline();
 
+	t1.set_name("a");
+	t2.set_name("b");
+	t3.set_name("c");
 	
 	string* sub1 = t1.add_subscribed();
 	string* sub2 = t1.add_subscribed();
@@ -84,10 +87,6 @@ void initTimelineList(vector<timeline>* tl){
 	*sub1 = "b";
 	*sub2 = "c";
 	*sub3 = "a";
-	
-	t1.set_name("a");
-	t2.set_name("b");
-	
 	
 	Stats* s1 = t1.add_statuses();
 	Stats* s2 = t1.add_statuses();
@@ -109,7 +108,7 @@ void initTimelineList(vector<timeline>* tl){
 	
 	tl->push_back(t1);
 	tl->push_back(t2);
-	
+	tl->push_back(t3);
 	
 }
 
@@ -132,6 +131,43 @@ timeline* getTimelinePointer(string nameX){
 		}
 	}
 	return NULL;
+}
+
+// Allow message ranking for sorting
+bool msgCompare(const Stats& l, const Stats& r){
+	return (l.timestamp() < r.timestamp());
+}
+
+// Gets the most recent k messages for a person
+// If previousK < 0 then removes messages > previousK
+std::vector<Stats> getRecentMessages(string name, int k, int previousK){
+	std::vector<Stats> messages;
+	timeline* userTimeline = getTimelinePointer(name);
+	timeline* subbedTimeline; // Timeline of person to whom user is subscibed
+	
+	// Gather all messages from user's subscriptions
+	if (userTimeline == NULL) {
+		std::cerr << "Error: User " << name << " exists, but has no timeline!" << '\n';
+	} else {
+		for (size_t i = 0; i < userTimeline->subscribed_size(); i++) {
+			subbedTimeline = getTimelinePointer(userTimeline->subscribed(i));
+			if (subbedTimeline == NULL) {
+				std::cerr << "Error: User " << name << " exists, but has no timeline!" << '\n';
+			} else {
+				for (size_t j = 0; j < subbedTimeline->statuses_size(); j++) {
+					messages.push_back(subbedTimeline->statuses(j));
+				}
+			}
+		}
+	}
+	std::sort(messages.begin(), messages.end(), msgCompare);
+	if (DEBUG) {
+		cout << "Most recent 20 messages:\n";
+		for (size_t i = 0; i < messages.size(); i++) {
+			cout << messages[i].timestamp() << endl;
+		}
+	}
+	return messages;
 }
 
 bool checkUserList(string username){
@@ -469,7 +505,10 @@ int main(int argc, char* argv[]) {
         portNumber = argv[1];
     }
 
+
+		// initTimelineList(&timelineList);
 	TimelinesFromDisk(timelineList);
+		// getRecentMessages("a", 20, 10);
     startServer(portNumber);
 	TimelinesToDisk(timelineList);
     
