@@ -37,34 +37,14 @@ void protobuf_AddDesc_chatservice_2eproto();
 void protobuf_AssignDesc_chatservice_2eproto();
 void protobuf_ShutdownFile_chatservice_2eproto();
 
-class ChatMsg;
 class Commands;
 class JoinRequest;
+class Requests;
 class Stats;
-class User;
+class TimelineDB;
+class clientUser;
 class timeline;
 
-enum Stats_MsgType {
-  Stats_MsgType_CHAT = 0,
-  Stats_MsgType_COMMAND = 1,
-  Stats_MsgType_Stats_MsgType_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
-  Stats_MsgType_Stats_MsgType_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
-};
-bool Stats_MsgType_IsValid(int value);
-const Stats_MsgType Stats_MsgType_MsgType_MIN = Stats_MsgType_CHAT;
-const Stats_MsgType Stats_MsgType_MsgType_MAX = Stats_MsgType_COMMAND;
-const int Stats_MsgType_MsgType_ARRAYSIZE = Stats_MsgType_MsgType_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* Stats_MsgType_descriptor();
-inline const ::std::string& Stats_MsgType_Name(Stats_MsgType value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    Stats_MsgType_descriptor(), value);
-}
-inline bool Stats_MsgType_Parse(
-    const ::std::string& name, Stats_MsgType* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<Stats_MsgType>(
-    Stats_MsgType_descriptor(), name, value);
-}
 enum Commands_type {
   Commands_type_List = 0,
   Commands_type_Join = 1,
@@ -89,131 +69,6 @@ inline bool Commands_type_Parse(
     Commands_type_descriptor(), name, value);
 }
 // ===================================================================
-
-class Stats : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:chatserver.Stats) */ {
- public:
-  Stats();
-  virtual ~Stats();
-
-  Stats(const Stats& from);
-
-  inline Stats& operator=(const Stats& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const Stats& default_instance();
-
-  void Swap(Stats* other);
-
-  // implements Message ----------------------------------------------
-
-  inline Stats* New() const { return New(NULL); }
-
-  Stats* New(::google::protobuf::Arena* arena) const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const Stats& from);
-  void MergeFrom(const Stats& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const {
-    return InternalSerializeWithCachedSizesToArray(false, output);
-  }
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  void InternalSwap(Stats* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return _internal_metadata_.arena();
-  }
-  inline void* MaybeArenaPtr() const {
-    return _internal_metadata_.raw_arena_ptr();
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  typedef Stats_MsgType MsgType;
-  static const MsgType CHAT =
-    Stats_MsgType_CHAT;
-  static const MsgType COMMAND =
-    Stats_MsgType_COMMAND;
-  static inline bool MsgType_IsValid(int value) {
-    return Stats_MsgType_IsValid(value);
-  }
-  static const MsgType MsgType_MIN =
-    Stats_MsgType_MsgType_MIN;
-  static const MsgType MsgType_MAX =
-    Stats_MsgType_MsgType_MAX;
-  static const int MsgType_ARRAYSIZE =
-    Stats_MsgType_MsgType_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  MsgType_descriptor() {
-    return Stats_MsgType_descriptor();
-  }
-  static inline const ::std::string& MsgType_Name(MsgType value) {
-    return Stats_MsgType_Name(value);
-  }
-  static inline bool MsgType_Parse(const ::std::string& name,
-      MsgType* value) {
-    return Stats_MsgType_Parse(name, value);
-  }
-
-  // accessors -------------------------------------------------------
-
-  // optional string name = 1;
-  void clear_name();
-  static const int kNameFieldNumber = 1;
-  const ::std::string& name() const;
-  void set_name(const ::std::string& value);
-  void set_name(const char* value);
-  void set_name(const char* value, size_t size);
-  ::std::string* mutable_name();
-  ::std::string* release_name();
-  void set_allocated_name(::std::string* name);
-
-  // optional string msg = 2;
-  void clear_msg();
-  static const int kMsgFieldNumber = 2;
-  const ::std::string& msg() const;
-  void set_msg(const ::std::string& value);
-  void set_msg(const char* value);
-  void set_msg(const char* value, size_t size);
-  ::std::string* mutable_msg();
-  ::std::string* release_msg();
-  void set_allocated_msg(::std::string* msg);
-
-  // @@protoc_insertion_point(class_scope:chatserver.Stats)
- private:
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  bool _is_default_instance_;
-  ::google::protobuf::internal::ArenaStringPtr name_;
-  ::google::protobuf::internal::ArenaStringPtr msg_;
-  mutable int _cached_size_;
-  friend void  protobuf_AddDesc_chatservice_2eproto();
-  friend void protobuf_AssignDesc_chatservice_2eproto();
-  friend void protobuf_ShutdownFile_chatservice_2eproto();
-
-  void InitAsDefaultInstance();
-  static Stats* default_instance_;
-};
-// -------------------------------------------------------------------
 
 class timeline : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:chatserver.timeline) */ {
  public:
@@ -287,12 +142,41 @@ class timeline : public ::google::protobuf::Message /* @@protoc_insertion_point(
   const ::google::protobuf::RepeatedPtrField< ::chatserver::Stats >&
       statuses() const;
 
+  // optional string name = 2;
+  void clear_name();
+  static const int kNameFieldNumber = 2;
+  const ::std::string& name() const;
+  void set_name(const ::std::string& value);
+  void set_name(const char* value);
+  void set_name(const char* value, size_t size);
+  ::std::string* mutable_name();
+  ::std::string* release_name();
+  void set_allocated_name(::std::string* name);
+
+  // repeated string subscribed = 3;
+  int subscribed_size() const;
+  void clear_subscribed();
+  static const int kSubscribedFieldNumber = 3;
+  const ::std::string& subscribed(int index) const;
+  ::std::string* mutable_subscribed(int index);
+  void set_subscribed(int index, const ::std::string& value);
+  void set_subscribed(int index, const char* value);
+  void set_subscribed(int index, const char* value, size_t size);
+  ::std::string* add_subscribed();
+  void add_subscribed(const ::std::string& value);
+  void add_subscribed(const char* value);
+  void add_subscribed(const char* value, size_t size);
+  const ::google::protobuf::RepeatedPtrField< ::std::string>& subscribed() const;
+  ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_subscribed();
+
   // @@protoc_insertion_point(class_scope:chatserver.timeline)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   bool _is_default_instance_;
   ::google::protobuf::RepeatedPtrField< ::chatserver::Stats > statuses_;
+  ::google::protobuf::internal::ArenaStringPtr name_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> subscribed_;
   mutable int _cached_size_;
   friend void  protobuf_AddDesc_chatservice_2eproto();
   friend void protobuf_AssignDesc_chatservice_2eproto();
@@ -303,32 +187,32 @@ class timeline : public ::google::protobuf::Message /* @@protoc_insertion_point(
 };
 // -------------------------------------------------------------------
 
-class ChatMsg : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:chatserver.ChatMsg) */ {
+class TimelineDB : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:chatserver.TimelineDB) */ {
  public:
-  ChatMsg();
-  virtual ~ChatMsg();
+  TimelineDB();
+  virtual ~TimelineDB();
 
-  ChatMsg(const ChatMsg& from);
+  TimelineDB(const TimelineDB& from);
 
-  inline ChatMsg& operator=(const ChatMsg& from) {
+  inline TimelineDB& operator=(const TimelineDB& from) {
     CopyFrom(from);
     return *this;
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const ChatMsg& default_instance();
+  static const TimelineDB& default_instance();
 
-  void Swap(ChatMsg* other);
+  void Swap(TimelineDB* other);
 
   // implements Message ----------------------------------------------
 
-  inline ChatMsg* New() const { return New(NULL); }
+  inline TimelineDB* New() const { return New(NULL); }
 
-  ChatMsg* New(::google::protobuf::Arena* arena) const;
+  TimelineDB* New(::google::protobuf::Arena* arena) const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ChatMsg& from);
-  void MergeFrom(const ChatMsg& from);
+  void CopyFrom(const TimelineDB& from);
+  void MergeFrom(const TimelineDB& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -347,7 +231,102 @@ class ChatMsg : public ::google::protobuf::Message /* @@protoc_insertion_point(c
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const;
-  void InternalSwap(ChatMsg* other);
+  void InternalSwap(TimelineDB* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return _internal_metadata_.arena();
+  }
+  inline void* MaybeArenaPtr() const {
+    return _internal_metadata_.raw_arena_ptr();
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .chatserver.timeline timeline = 1;
+  int timeline_size() const;
+  void clear_timeline();
+  static const int kTimelineFieldNumber = 1;
+  const ::chatserver::timeline& timeline(int index) const;
+  ::chatserver::timeline* mutable_timeline(int index);
+  ::chatserver::timeline* add_timeline();
+  ::google::protobuf::RepeatedPtrField< ::chatserver::timeline >*
+      mutable_timeline();
+  const ::google::protobuf::RepeatedPtrField< ::chatserver::timeline >&
+      timeline() const;
+
+  // optional int32 serverCounter = 2;
+  void clear_servercounter();
+  static const int kServerCounterFieldNumber = 2;
+  ::google::protobuf::int32 servercounter() const;
+  void set_servercounter(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:chatserver.TimelineDB)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  bool _is_default_instance_;
+  ::google::protobuf::RepeatedPtrField< ::chatserver::timeline > timeline_;
+  ::google::protobuf::int32 servercounter_;
+  mutable int _cached_size_;
+  friend void  protobuf_AddDesc_chatservice_2eproto();
+  friend void protobuf_AssignDesc_chatservice_2eproto();
+  friend void protobuf_ShutdownFile_chatservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static TimelineDB* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class Stats : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:chatserver.Stats) */ {
+ public:
+  Stats();
+  virtual ~Stats();
+
+  Stats(const Stats& from);
+
+  inline Stats& operator=(const Stats& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Stats& default_instance();
+
+  void Swap(Stats* other);
+
+  // implements Message ----------------------------------------------
+
+  inline Stats* New() const { return New(NULL); }
+
+  Stats* New(::google::protobuf::Arena* arena) const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Stats& from);
+  void MergeFrom(const Stats& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const {
+    return InternalSerializeWithCachedSizesToArray(false, output);
+  }
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Stats* other);
   private:
   inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
     return _internal_metadata_.arena();
@@ -385,27 +364,27 @@ class ChatMsg : public ::google::protobuf::Message /* @@protoc_insertion_point(c
   ::std::string* release_msg();
   void set_allocated_msg(::std::string* msg);
 
-  // optional int64 timeStamp = 3;
+  // optional int32 timeStamp = 3;
   void clear_timestamp();
   static const int kTimeStampFieldNumber = 3;
-  ::google::protobuf::int64 timestamp() const;
-  void set_timestamp(::google::protobuf::int64 value);
+  ::google::protobuf::int32 timestamp() const;
+  void set_timestamp(::google::protobuf::int32 value);
 
-  // @@protoc_insertion_point(class_scope:chatserver.ChatMsg)
+  // @@protoc_insertion_point(class_scope:chatserver.Stats)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   bool _is_default_instance_;
   ::google::protobuf::internal::ArenaStringPtr name_;
   ::google::protobuf::internal::ArenaStringPtr msg_;
-  ::google::protobuf::int64 timestamp_;
+  ::google::protobuf::int32 timestamp_;
   mutable int _cached_size_;
   friend void  protobuf_AddDesc_chatservice_2eproto();
   friend void protobuf_AssignDesc_chatservice_2eproto();
   friend void protobuf_ShutdownFile_chatservice_2eproto();
 
   void InitAsDefaultInstance();
-  static ChatMsg* default_instance_;
+  static Stats* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -533,32 +512,32 @@ class Commands : public ::google::protobuf::Message /* @@protoc_insertion_point(
 };
 // -------------------------------------------------------------------
 
-class User : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:chatserver.User) */ {
+class clientUser : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:chatserver.clientUser) */ {
  public:
-  User();
-  virtual ~User();
+  clientUser();
+  virtual ~clientUser();
 
-  User(const User& from);
+  clientUser(const clientUser& from);
 
-  inline User& operator=(const User& from) {
+  inline clientUser& operator=(const clientUser& from) {
     CopyFrom(from);
     return *this;
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const User& default_instance();
+  static const clientUser& default_instance();
 
-  void Swap(User* other);
+  void Swap(clientUser* other);
 
   // implements Message ----------------------------------------------
 
-  inline User* New() const { return New(NULL); }
+  inline clientUser* New() const { return New(NULL); }
 
-  User* New(::google::protobuf::Arena* arena) const;
+  clientUser* New(::google::protobuf::Arena* arena) const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const User& from);
-  void MergeFrom(const User& from);
+  void CopyFrom(const clientUser& from);
+  void MergeFrom(const clientUser& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -577,7 +556,7 @@ class User : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const;
-  void InternalSwap(User* other);
+  void InternalSwap(clientUser* other);
   private:
   inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
     return _internal_metadata_.arena();
@@ -604,45 +583,45 @@ class User : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   ::std::string* release_name();
   void set_allocated_name(::std::string* name);
 
-  // repeated .chatserver.ChatMsg log = 2;
+  // repeated .chatserver.Stats log = 2;
   int log_size() const;
   void clear_log();
   static const int kLogFieldNumber = 2;
-  const ::chatserver::ChatMsg& log(int index) const;
-  ::chatserver::ChatMsg* mutable_log(int index);
-  ::chatserver::ChatMsg* add_log();
-  ::google::protobuf::RepeatedPtrField< ::chatserver::ChatMsg >*
+  const ::chatserver::Stats& log(int index) const;
+  ::chatserver::Stats* mutable_log(int index);
+  ::chatserver::Stats* add_log();
+  ::google::protobuf::RepeatedPtrField< ::chatserver::Stats >*
       mutable_log();
-  const ::google::protobuf::RepeatedPtrField< ::chatserver::ChatMsg >&
+  const ::google::protobuf::RepeatedPtrField< ::chatserver::Stats >&
       log() const;
 
-  // repeated .chatserver.User subscription = 3;
+  // repeated .chatserver.clientUser subscription = 3;
   int subscription_size() const;
   void clear_subscription();
   static const int kSubscriptionFieldNumber = 3;
-  const ::chatserver::User& subscription(int index) const;
-  ::chatserver::User* mutable_subscription(int index);
-  ::chatserver::User* add_subscription();
-  ::google::protobuf::RepeatedPtrField< ::chatserver::User >*
+  const ::chatserver::clientUser& subscription(int index) const;
+  ::chatserver::clientUser* mutable_subscription(int index);
+  ::chatserver::clientUser* add_subscription();
+  ::google::protobuf::RepeatedPtrField< ::chatserver::clientUser >*
       mutable_subscription();
-  const ::google::protobuf::RepeatedPtrField< ::chatserver::User >&
+  const ::google::protobuf::RepeatedPtrField< ::chatserver::clientUser >&
       subscription() const;
 
-  // @@protoc_insertion_point(class_scope:chatserver.User)
+  // @@protoc_insertion_point(class_scope:chatserver.clientUser)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   bool _is_default_instance_;
   ::google::protobuf::internal::ArenaStringPtr name_;
-  ::google::protobuf::RepeatedPtrField< ::chatserver::ChatMsg > log_;
-  ::google::protobuf::RepeatedPtrField< ::chatserver::User > subscription_;
+  ::google::protobuf::RepeatedPtrField< ::chatserver::Stats > log_;
+  ::google::protobuf::RepeatedPtrField< ::chatserver::clientUser > subscription_;
   mutable int _cached_size_;
   friend void  protobuf_AddDesc_chatservice_2eproto();
   friend void protobuf_AssignDesc_chatservice_2eproto();
   friend void protobuf_ShutdownFile_chatservice_2eproto();
 
   void InitAsDefaultInstance();
-  static User* default_instance_;
+  static clientUser* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -731,12 +710,352 @@ class JoinRequest : public ::google::protobuf::Message /* @@protoc_insertion_poi
   void InitAsDefaultInstance();
   static JoinRequest* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class Requests : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:chatserver.Requests) */ {
+ public:
+  Requests();
+  virtual ~Requests();
+
+  Requests(const Requests& from);
+
+  inline Requests& operator=(const Requests& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Requests& default_instance();
+
+  void Swap(Requests* other);
+
+  // implements Message ----------------------------------------------
+
+  inline Requests* New() const { return New(NULL); }
+
+  Requests* New(::google::protobuf::Arena* arena) const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Requests& from);
+  void MergeFrom(const Requests& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const {
+    return InternalSerializeWithCachedSizesToArray(false, output);
+  }
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Requests* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return _internal_metadata_.arena();
+  }
+  inline void* MaybeArenaPtr() const {
+    return _internal_metadata_.raw_arena_ptr();
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string loginrequest = 1;
+  void clear_loginrequest();
+  static const int kLoginrequestFieldNumber = 1;
+  const ::std::string& loginrequest() const;
+  void set_loginrequest(const ::std::string& value);
+  void set_loginrequest(const char* value);
+  void set_loginrequest(const char* value, size_t size);
+  ::std::string* mutable_loginrequest();
+  ::std::string* release_loginrequest();
+  void set_allocated_loginrequest(::std::string* loginrequest);
+
+  // optional string loginreply = 2;
+  void clear_loginreply();
+  static const int kLoginreplyFieldNumber = 2;
+  const ::std::string& loginreply() const;
+  void set_loginreply(const ::std::string& value);
+  void set_loginreply(const char* value);
+  void set_loginreply(const char* value, size_t size);
+  ::std::string* mutable_loginreply();
+  ::std::string* release_loginreply();
+  void set_allocated_loginreply(::std::string* loginreply);
+
+  // optional string joinrequest = 3;
+  void clear_joinrequest();
+  static const int kJoinrequestFieldNumber = 3;
+  const ::std::string& joinrequest() const;
+  void set_joinrequest(const ::std::string& value);
+  void set_joinrequest(const char* value);
+  void set_joinrequest(const char* value, size_t size);
+  ::std::string* mutable_joinrequest();
+  ::std::string* release_joinrequest();
+  void set_allocated_joinrequest(::std::string* joinrequest);
+
+  // optional string joinreply = 4;
+  void clear_joinreply();
+  static const int kJoinreplyFieldNumber = 4;
+  const ::std::string& joinreply() const;
+  void set_joinreply(const ::std::string& value);
+  void set_joinreply(const char* value);
+  void set_joinreply(const char* value, size_t size);
+  ::std::string* mutable_joinreply();
+  ::std::string* release_joinreply();
+  void set_allocated_joinreply(::std::string* joinreply);
+
+  // optional string listreply = 5;
+  void clear_listreply();
+  static const int kListreplyFieldNumber = 5;
+  const ::std::string& listreply() const;
+  void set_listreply(const ::std::string& value);
+  void set_listreply(const char* value);
+  void set_listreply(const char* value, size_t size);
+  ::std::string* mutable_listreply();
+  ::std::string* release_listreply();
+  void set_allocated_listreply(::std::string* listreply);
+
+  // optional string leaverequest = 6;
+  void clear_leaverequest();
+  static const int kLeaverequestFieldNumber = 6;
+  const ::std::string& leaverequest() const;
+  void set_leaverequest(const ::std::string& value);
+  void set_leaverequest(const char* value);
+  void set_leaverequest(const char* value, size_t size);
+  ::std::string* mutable_leaverequest();
+  ::std::string* release_leaverequest();
+  void set_allocated_leaverequest(::std::string* leaverequest);
+
+  // optional string leavereply = 7;
+  void clear_leavereply();
+  static const int kLeavereplyFieldNumber = 7;
+  const ::std::string& leavereply() const;
+  void set_leavereply(const ::std::string& value);
+  void set_leavereply(const char* value);
+  void set_leavereply(const char* value, size_t size);
+  ::std::string* mutable_leavereply();
+  ::std::string* release_leavereply();
+  void set_allocated_leavereply(::std::string* leavereply);
+
+  // @@protoc_insertion_point(class_scope:chatserver.Requests)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  bool _is_default_instance_;
+  ::google::protobuf::internal::ArenaStringPtr loginrequest_;
+  ::google::protobuf::internal::ArenaStringPtr loginreply_;
+  ::google::protobuf::internal::ArenaStringPtr joinrequest_;
+  ::google::protobuf::internal::ArenaStringPtr joinreply_;
+  ::google::protobuf::internal::ArenaStringPtr listreply_;
+  ::google::protobuf::internal::ArenaStringPtr leaverequest_;
+  ::google::protobuf::internal::ArenaStringPtr leavereply_;
+  mutable int _cached_size_;
+  friend void  protobuf_AddDesc_chatservice_2eproto();
+  friend void protobuf_AssignDesc_chatservice_2eproto();
+  friend void protobuf_ShutdownFile_chatservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static Requests* default_instance_;
+};
 // ===================================================================
 
 
 // ===================================================================
 
 #if !PROTOBUF_INLINE_NOT_IN_HEADERS
+// timeline
+
+// repeated .chatserver.Stats statuses = 1;
+inline int timeline::statuses_size() const {
+  return statuses_.size();
+}
+inline void timeline::clear_statuses() {
+  statuses_.Clear();
+}
+inline const ::chatserver::Stats& timeline::statuses(int index) const {
+  // @@protoc_insertion_point(field_get:chatserver.timeline.statuses)
+  return statuses_.Get(index);
+}
+inline ::chatserver::Stats* timeline::mutable_statuses(int index) {
+  // @@protoc_insertion_point(field_mutable:chatserver.timeline.statuses)
+  return statuses_.Mutable(index);
+}
+inline ::chatserver::Stats* timeline::add_statuses() {
+  // @@protoc_insertion_point(field_add:chatserver.timeline.statuses)
+  return statuses_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::chatserver::Stats >*
+timeline::mutable_statuses() {
+  // @@protoc_insertion_point(field_mutable_list:chatserver.timeline.statuses)
+  return &statuses_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::chatserver::Stats >&
+timeline::statuses() const {
+  // @@protoc_insertion_point(field_list:chatserver.timeline.statuses)
+  return statuses_;
+}
+
+// optional string name = 2;
+inline void timeline::clear_name() {
+  name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& timeline::name() const {
+  // @@protoc_insertion_point(field_get:chatserver.timeline.name)
+  return name_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void timeline::set_name(const ::std::string& value) {
+  
+  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:chatserver.timeline.name)
+}
+inline void timeline::set_name(const char* value) {
+  
+  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:chatserver.timeline.name)
+}
+inline void timeline::set_name(const char* value, size_t size) {
+  
+  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:chatserver.timeline.name)
+}
+inline ::std::string* timeline::mutable_name() {
+  
+  // @@protoc_insertion_point(field_mutable:chatserver.timeline.name)
+  return name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* timeline::release_name() {
+  // @@protoc_insertion_point(field_release:chatserver.timeline.name)
+  
+  return name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void timeline::set_allocated_name(::std::string* name) {
+  if (name != NULL) {
+    
+  } else {
+    
+  }
+  name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), name);
+  // @@protoc_insertion_point(field_set_allocated:chatserver.timeline.name)
+}
+
+// repeated string subscribed = 3;
+inline int timeline::subscribed_size() const {
+  return subscribed_.size();
+}
+inline void timeline::clear_subscribed() {
+  subscribed_.Clear();
+}
+inline const ::std::string& timeline::subscribed(int index) const {
+  // @@protoc_insertion_point(field_get:chatserver.timeline.subscribed)
+  return subscribed_.Get(index);
+}
+inline ::std::string* timeline::mutable_subscribed(int index) {
+  // @@protoc_insertion_point(field_mutable:chatserver.timeline.subscribed)
+  return subscribed_.Mutable(index);
+}
+inline void timeline::set_subscribed(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:chatserver.timeline.subscribed)
+  subscribed_.Mutable(index)->assign(value);
+}
+inline void timeline::set_subscribed(int index, const char* value) {
+  subscribed_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:chatserver.timeline.subscribed)
+}
+inline void timeline::set_subscribed(int index, const char* value, size_t size) {
+  subscribed_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:chatserver.timeline.subscribed)
+}
+inline ::std::string* timeline::add_subscribed() {
+  // @@protoc_insertion_point(field_add_mutable:chatserver.timeline.subscribed)
+  return subscribed_.Add();
+}
+inline void timeline::add_subscribed(const ::std::string& value) {
+  subscribed_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:chatserver.timeline.subscribed)
+}
+inline void timeline::add_subscribed(const char* value) {
+  subscribed_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:chatserver.timeline.subscribed)
+}
+inline void timeline::add_subscribed(const char* value, size_t size) {
+  subscribed_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:chatserver.timeline.subscribed)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+timeline::subscribed() const {
+  // @@protoc_insertion_point(field_list:chatserver.timeline.subscribed)
+  return subscribed_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+timeline::mutable_subscribed() {
+  // @@protoc_insertion_point(field_mutable_list:chatserver.timeline.subscribed)
+  return &subscribed_;
+}
+
+// -------------------------------------------------------------------
+
+// TimelineDB
+
+// repeated .chatserver.timeline timeline = 1;
+inline int TimelineDB::timeline_size() const {
+  return timeline_.size();
+}
+inline void TimelineDB::clear_timeline() {
+  timeline_.Clear();
+}
+inline const ::chatserver::timeline& TimelineDB::timeline(int index) const {
+  // @@protoc_insertion_point(field_get:chatserver.TimelineDB.timeline)
+  return timeline_.Get(index);
+}
+inline ::chatserver::timeline* TimelineDB::mutable_timeline(int index) {
+  // @@protoc_insertion_point(field_mutable:chatserver.TimelineDB.timeline)
+  return timeline_.Mutable(index);
+}
+inline ::chatserver::timeline* TimelineDB::add_timeline() {
+  // @@protoc_insertion_point(field_add:chatserver.TimelineDB.timeline)
+  return timeline_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::chatserver::timeline >*
+TimelineDB::mutable_timeline() {
+  // @@protoc_insertion_point(field_mutable_list:chatserver.TimelineDB.timeline)
+  return &timeline_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::chatserver::timeline >&
+TimelineDB::timeline() const {
+  // @@protoc_insertion_point(field_list:chatserver.TimelineDB.timeline)
+  return timeline_;
+}
+
+// optional int32 serverCounter = 2;
+inline void TimelineDB::clear_servercounter() {
+  servercounter_ = 0;
+}
+inline ::google::protobuf::int32 TimelineDB::servercounter() const {
+  // @@protoc_insertion_point(field_get:chatserver.TimelineDB.serverCounter)
+  return servercounter_;
+}
+inline void TimelineDB::set_servercounter(::google::protobuf::int32 value) {
+  
+  servercounter_ = value;
+  // @@protoc_insertion_point(field_set:chatserver.TimelineDB.serverCounter)
+}
+
+// -------------------------------------------------------------------
+
 // Stats
 
 // optional string name = 1;
@@ -827,144 +1146,18 @@ inline void Stats::set_allocated_msg(::std::string* msg) {
   // @@protoc_insertion_point(field_set_allocated:chatserver.Stats.msg)
 }
 
-// -------------------------------------------------------------------
-
-// timeline
-
-// repeated .chatserver.Stats statuses = 1;
-inline int timeline::statuses_size() const {
-  return statuses_.size();
+// optional int32 timeStamp = 3;
+inline void Stats::clear_timestamp() {
+  timestamp_ = 0;
 }
-inline void timeline::clear_statuses() {
-  statuses_.Clear();
-}
-inline const ::chatserver::Stats& timeline::statuses(int index) const {
-  // @@protoc_insertion_point(field_get:chatserver.timeline.statuses)
-  return statuses_.Get(index);
-}
-inline ::chatserver::Stats* timeline::mutable_statuses(int index) {
-  // @@protoc_insertion_point(field_mutable:chatserver.timeline.statuses)
-  return statuses_.Mutable(index);
-}
-inline ::chatserver::Stats* timeline::add_statuses() {
-  // @@protoc_insertion_point(field_add:chatserver.timeline.statuses)
-  return statuses_.Add();
-}
-inline ::google::protobuf::RepeatedPtrField< ::chatserver::Stats >*
-timeline::mutable_statuses() {
-  // @@protoc_insertion_point(field_mutable_list:chatserver.timeline.statuses)
-  return &statuses_;
-}
-inline const ::google::protobuf::RepeatedPtrField< ::chatserver::Stats >&
-timeline::statuses() const {
-  // @@protoc_insertion_point(field_list:chatserver.timeline.statuses)
-  return statuses_;
-}
-
-// -------------------------------------------------------------------
-
-// ChatMsg
-
-// optional string name = 1;
-inline void ChatMsg::clear_name() {
-  name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline const ::std::string& ChatMsg::name() const {
-  // @@protoc_insertion_point(field_get:chatserver.ChatMsg.name)
-  return name_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline void ChatMsg::set_name(const ::std::string& value) {
-  
-  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:chatserver.ChatMsg.name)
-}
-inline void ChatMsg::set_name(const char* value) {
-  
-  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:chatserver.ChatMsg.name)
-}
-inline void ChatMsg::set_name(const char* value, size_t size) {
-  
-  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:chatserver.ChatMsg.name)
-}
-inline ::std::string* ChatMsg::mutable_name() {
-  
-  // @@protoc_insertion_point(field_mutable:chatserver.ChatMsg.name)
-  return name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline ::std::string* ChatMsg::release_name() {
-  // @@protoc_insertion_point(field_release:chatserver.ChatMsg.name)
-  
-  return name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline void ChatMsg::set_allocated_name(::std::string* name) {
-  if (name != NULL) {
-    
-  } else {
-    
-  }
-  name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), name);
-  // @@protoc_insertion_point(field_set_allocated:chatserver.ChatMsg.name)
-}
-
-// optional string msg = 2;
-inline void ChatMsg::clear_msg() {
-  msg_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline const ::std::string& ChatMsg::msg() const {
-  // @@protoc_insertion_point(field_get:chatserver.ChatMsg.msg)
-  return msg_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline void ChatMsg::set_msg(const ::std::string& value) {
-  
-  msg_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:chatserver.ChatMsg.msg)
-}
-inline void ChatMsg::set_msg(const char* value) {
-  
-  msg_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:chatserver.ChatMsg.msg)
-}
-inline void ChatMsg::set_msg(const char* value, size_t size) {
-  
-  msg_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:chatserver.ChatMsg.msg)
-}
-inline ::std::string* ChatMsg::mutable_msg() {
-  
-  // @@protoc_insertion_point(field_mutable:chatserver.ChatMsg.msg)
-  return msg_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline ::std::string* ChatMsg::release_msg() {
-  // @@protoc_insertion_point(field_release:chatserver.ChatMsg.msg)
-  
-  return msg_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline void ChatMsg::set_allocated_msg(::std::string* msg) {
-  if (msg != NULL) {
-    
-  } else {
-    
-  }
-  msg_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), msg);
-  // @@protoc_insertion_point(field_set_allocated:chatserver.ChatMsg.msg)
-}
-
-// optional int64 timeStamp = 3;
-inline void ChatMsg::clear_timestamp() {
-  timestamp_ = GOOGLE_LONGLONG(0);
-}
-inline ::google::protobuf::int64 ChatMsg::timestamp() const {
-  // @@protoc_insertion_point(field_get:chatserver.ChatMsg.timeStamp)
+inline ::google::protobuf::int32 Stats::timestamp() const {
+  // @@protoc_insertion_point(field_get:chatserver.Stats.timeStamp)
   return timestamp_;
 }
-inline void ChatMsg::set_timestamp(::google::protobuf::int64 value) {
+inline void Stats::set_timestamp(::google::protobuf::int32 value) {
   
   timestamp_ = value;
-  // @@protoc_insertion_point(field_set:chatserver.ChatMsg.timeStamp)
+  // @@protoc_insertion_point(field_set:chatserver.Stats.timeStamp)
 }
 
 // -------------------------------------------------------------------
@@ -1031,109 +1224,109 @@ inline void Commands::set_allocated_roomname(::std::string* roomname) {
 
 // -------------------------------------------------------------------
 
-// User
+// clientUser
 
 // optional string name = 1;
-inline void User::clear_name() {
+inline void clientUser::clear_name() {
   name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline const ::std::string& User::name() const {
-  // @@protoc_insertion_point(field_get:chatserver.User.name)
+inline const ::std::string& clientUser::name() const {
+  // @@protoc_insertion_point(field_get:chatserver.clientUser.name)
   return name_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void User::set_name(const ::std::string& value) {
+inline void clientUser::set_name(const ::std::string& value) {
   
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:chatserver.User.name)
+  // @@protoc_insertion_point(field_set:chatserver.clientUser.name)
 }
-inline void User::set_name(const char* value) {
+inline void clientUser::set_name(const char* value) {
   
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:chatserver.User.name)
+  // @@protoc_insertion_point(field_set_char:chatserver.clientUser.name)
 }
-inline void User::set_name(const char* value, size_t size) {
+inline void clientUser::set_name(const char* value, size_t size) {
   
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:chatserver.User.name)
+  // @@protoc_insertion_point(field_set_pointer:chatserver.clientUser.name)
 }
-inline ::std::string* User::mutable_name() {
+inline ::std::string* clientUser::mutable_name() {
   
-  // @@protoc_insertion_point(field_mutable:chatserver.User.name)
+  // @@protoc_insertion_point(field_mutable:chatserver.clientUser.name)
   return name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* User::release_name() {
-  // @@protoc_insertion_point(field_release:chatserver.User.name)
+inline ::std::string* clientUser::release_name() {
+  // @@protoc_insertion_point(field_release:chatserver.clientUser.name)
   
   return name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void User::set_allocated_name(::std::string* name) {
+inline void clientUser::set_allocated_name(::std::string* name) {
   if (name != NULL) {
     
   } else {
     
   }
   name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), name);
-  // @@protoc_insertion_point(field_set_allocated:chatserver.User.name)
+  // @@protoc_insertion_point(field_set_allocated:chatserver.clientUser.name)
 }
 
-// repeated .chatserver.ChatMsg log = 2;
-inline int User::log_size() const {
+// repeated .chatserver.Stats log = 2;
+inline int clientUser::log_size() const {
   return log_.size();
 }
-inline void User::clear_log() {
+inline void clientUser::clear_log() {
   log_.Clear();
 }
-inline const ::chatserver::ChatMsg& User::log(int index) const {
-  // @@protoc_insertion_point(field_get:chatserver.User.log)
+inline const ::chatserver::Stats& clientUser::log(int index) const {
+  // @@protoc_insertion_point(field_get:chatserver.clientUser.log)
   return log_.Get(index);
 }
-inline ::chatserver::ChatMsg* User::mutable_log(int index) {
-  // @@protoc_insertion_point(field_mutable:chatserver.User.log)
+inline ::chatserver::Stats* clientUser::mutable_log(int index) {
+  // @@protoc_insertion_point(field_mutable:chatserver.clientUser.log)
   return log_.Mutable(index);
 }
-inline ::chatserver::ChatMsg* User::add_log() {
-  // @@protoc_insertion_point(field_add:chatserver.User.log)
+inline ::chatserver::Stats* clientUser::add_log() {
+  // @@protoc_insertion_point(field_add:chatserver.clientUser.log)
   return log_.Add();
 }
-inline ::google::protobuf::RepeatedPtrField< ::chatserver::ChatMsg >*
-User::mutable_log() {
-  // @@protoc_insertion_point(field_mutable_list:chatserver.User.log)
+inline ::google::protobuf::RepeatedPtrField< ::chatserver::Stats >*
+clientUser::mutable_log() {
+  // @@protoc_insertion_point(field_mutable_list:chatserver.clientUser.log)
   return &log_;
 }
-inline const ::google::protobuf::RepeatedPtrField< ::chatserver::ChatMsg >&
-User::log() const {
-  // @@protoc_insertion_point(field_list:chatserver.User.log)
+inline const ::google::protobuf::RepeatedPtrField< ::chatserver::Stats >&
+clientUser::log() const {
+  // @@protoc_insertion_point(field_list:chatserver.clientUser.log)
   return log_;
 }
 
-// repeated .chatserver.User subscription = 3;
-inline int User::subscription_size() const {
+// repeated .chatserver.clientUser subscription = 3;
+inline int clientUser::subscription_size() const {
   return subscription_.size();
 }
-inline void User::clear_subscription() {
+inline void clientUser::clear_subscription() {
   subscription_.Clear();
 }
-inline const ::chatserver::User& User::subscription(int index) const {
-  // @@protoc_insertion_point(field_get:chatserver.User.subscription)
+inline const ::chatserver::clientUser& clientUser::subscription(int index) const {
+  // @@protoc_insertion_point(field_get:chatserver.clientUser.subscription)
   return subscription_.Get(index);
 }
-inline ::chatserver::User* User::mutable_subscription(int index) {
-  // @@protoc_insertion_point(field_mutable:chatserver.User.subscription)
+inline ::chatserver::clientUser* clientUser::mutable_subscription(int index) {
+  // @@protoc_insertion_point(field_mutable:chatserver.clientUser.subscription)
   return subscription_.Mutable(index);
 }
-inline ::chatserver::User* User::add_subscription() {
-  // @@protoc_insertion_point(field_add:chatserver.User.subscription)
+inline ::chatserver::clientUser* clientUser::add_subscription() {
+  // @@protoc_insertion_point(field_add:chatserver.clientUser.subscription)
   return subscription_.Add();
 }
-inline ::google::protobuf::RepeatedPtrField< ::chatserver::User >*
-User::mutable_subscription() {
-  // @@protoc_insertion_point(field_mutable_list:chatserver.User.subscription)
+inline ::google::protobuf::RepeatedPtrField< ::chatserver::clientUser >*
+clientUser::mutable_subscription() {
+  // @@protoc_insertion_point(field_mutable_list:chatserver.clientUser.subscription)
   return &subscription_;
 }
-inline const ::google::protobuf::RepeatedPtrField< ::chatserver::User >&
-User::subscription() const {
-  // @@protoc_insertion_point(field_list:chatserver.User.subscription)
+inline const ::google::protobuf::RepeatedPtrField< ::chatserver::clientUser >&
+clientUser::subscription() const {
+  // @@protoc_insertion_point(field_list:chatserver.clientUser.subscription)
   return subscription_;
 }
 
@@ -1185,7 +1378,321 @@ inline void JoinRequest::set_allocated_name(::std::string* name) {
   // @@protoc_insertion_point(field_set_allocated:chatserver.JoinRequest.name)
 }
 
+// -------------------------------------------------------------------
+
+// Requests
+
+// optional string loginrequest = 1;
+inline void Requests::clear_loginrequest() {
+  loginrequest_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Requests::loginrequest() const {
+  // @@protoc_insertion_point(field_get:chatserver.Requests.loginrequest)
+  return loginrequest_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_loginrequest(const ::std::string& value) {
+  
+  loginrequest_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:chatserver.Requests.loginrequest)
+}
+inline void Requests::set_loginrequest(const char* value) {
+  
+  loginrequest_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:chatserver.Requests.loginrequest)
+}
+inline void Requests::set_loginrequest(const char* value, size_t size) {
+  
+  loginrequest_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:chatserver.Requests.loginrequest)
+}
+inline ::std::string* Requests::mutable_loginrequest() {
+  
+  // @@protoc_insertion_point(field_mutable:chatserver.Requests.loginrequest)
+  return loginrequest_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Requests::release_loginrequest() {
+  // @@protoc_insertion_point(field_release:chatserver.Requests.loginrequest)
+  
+  return loginrequest_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_allocated_loginrequest(::std::string* loginrequest) {
+  if (loginrequest != NULL) {
+    
+  } else {
+    
+  }
+  loginrequest_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), loginrequest);
+  // @@protoc_insertion_point(field_set_allocated:chatserver.Requests.loginrequest)
+}
+
+// optional string loginreply = 2;
+inline void Requests::clear_loginreply() {
+  loginreply_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Requests::loginreply() const {
+  // @@protoc_insertion_point(field_get:chatserver.Requests.loginreply)
+  return loginreply_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_loginreply(const ::std::string& value) {
+  
+  loginreply_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:chatserver.Requests.loginreply)
+}
+inline void Requests::set_loginreply(const char* value) {
+  
+  loginreply_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:chatserver.Requests.loginreply)
+}
+inline void Requests::set_loginreply(const char* value, size_t size) {
+  
+  loginreply_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:chatserver.Requests.loginreply)
+}
+inline ::std::string* Requests::mutable_loginreply() {
+  
+  // @@protoc_insertion_point(field_mutable:chatserver.Requests.loginreply)
+  return loginreply_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Requests::release_loginreply() {
+  // @@protoc_insertion_point(field_release:chatserver.Requests.loginreply)
+  
+  return loginreply_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_allocated_loginreply(::std::string* loginreply) {
+  if (loginreply != NULL) {
+    
+  } else {
+    
+  }
+  loginreply_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), loginreply);
+  // @@protoc_insertion_point(field_set_allocated:chatserver.Requests.loginreply)
+}
+
+// optional string joinrequest = 3;
+inline void Requests::clear_joinrequest() {
+  joinrequest_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Requests::joinrequest() const {
+  // @@protoc_insertion_point(field_get:chatserver.Requests.joinrequest)
+  return joinrequest_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_joinrequest(const ::std::string& value) {
+  
+  joinrequest_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:chatserver.Requests.joinrequest)
+}
+inline void Requests::set_joinrequest(const char* value) {
+  
+  joinrequest_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:chatserver.Requests.joinrequest)
+}
+inline void Requests::set_joinrequest(const char* value, size_t size) {
+  
+  joinrequest_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:chatserver.Requests.joinrequest)
+}
+inline ::std::string* Requests::mutable_joinrequest() {
+  
+  // @@protoc_insertion_point(field_mutable:chatserver.Requests.joinrequest)
+  return joinrequest_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Requests::release_joinrequest() {
+  // @@protoc_insertion_point(field_release:chatserver.Requests.joinrequest)
+  
+  return joinrequest_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_allocated_joinrequest(::std::string* joinrequest) {
+  if (joinrequest != NULL) {
+    
+  } else {
+    
+  }
+  joinrequest_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), joinrequest);
+  // @@protoc_insertion_point(field_set_allocated:chatserver.Requests.joinrequest)
+}
+
+// optional string joinreply = 4;
+inline void Requests::clear_joinreply() {
+  joinreply_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Requests::joinreply() const {
+  // @@protoc_insertion_point(field_get:chatserver.Requests.joinreply)
+  return joinreply_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_joinreply(const ::std::string& value) {
+  
+  joinreply_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:chatserver.Requests.joinreply)
+}
+inline void Requests::set_joinreply(const char* value) {
+  
+  joinreply_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:chatserver.Requests.joinreply)
+}
+inline void Requests::set_joinreply(const char* value, size_t size) {
+  
+  joinreply_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:chatserver.Requests.joinreply)
+}
+inline ::std::string* Requests::mutable_joinreply() {
+  
+  // @@protoc_insertion_point(field_mutable:chatserver.Requests.joinreply)
+  return joinreply_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Requests::release_joinreply() {
+  // @@protoc_insertion_point(field_release:chatserver.Requests.joinreply)
+  
+  return joinreply_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_allocated_joinreply(::std::string* joinreply) {
+  if (joinreply != NULL) {
+    
+  } else {
+    
+  }
+  joinreply_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), joinreply);
+  // @@protoc_insertion_point(field_set_allocated:chatserver.Requests.joinreply)
+}
+
+// optional string listreply = 5;
+inline void Requests::clear_listreply() {
+  listreply_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Requests::listreply() const {
+  // @@protoc_insertion_point(field_get:chatserver.Requests.listreply)
+  return listreply_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_listreply(const ::std::string& value) {
+  
+  listreply_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:chatserver.Requests.listreply)
+}
+inline void Requests::set_listreply(const char* value) {
+  
+  listreply_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:chatserver.Requests.listreply)
+}
+inline void Requests::set_listreply(const char* value, size_t size) {
+  
+  listreply_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:chatserver.Requests.listreply)
+}
+inline ::std::string* Requests::mutable_listreply() {
+  
+  // @@protoc_insertion_point(field_mutable:chatserver.Requests.listreply)
+  return listreply_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Requests::release_listreply() {
+  // @@protoc_insertion_point(field_release:chatserver.Requests.listreply)
+  
+  return listreply_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_allocated_listreply(::std::string* listreply) {
+  if (listreply != NULL) {
+    
+  } else {
+    
+  }
+  listreply_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), listreply);
+  // @@protoc_insertion_point(field_set_allocated:chatserver.Requests.listreply)
+}
+
+// optional string leaverequest = 6;
+inline void Requests::clear_leaverequest() {
+  leaverequest_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Requests::leaverequest() const {
+  // @@protoc_insertion_point(field_get:chatserver.Requests.leaverequest)
+  return leaverequest_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_leaverequest(const ::std::string& value) {
+  
+  leaverequest_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:chatserver.Requests.leaverequest)
+}
+inline void Requests::set_leaverequest(const char* value) {
+  
+  leaverequest_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:chatserver.Requests.leaverequest)
+}
+inline void Requests::set_leaverequest(const char* value, size_t size) {
+  
+  leaverequest_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:chatserver.Requests.leaverequest)
+}
+inline ::std::string* Requests::mutable_leaverequest() {
+  
+  // @@protoc_insertion_point(field_mutable:chatserver.Requests.leaverequest)
+  return leaverequest_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Requests::release_leaverequest() {
+  // @@protoc_insertion_point(field_release:chatserver.Requests.leaverequest)
+  
+  return leaverequest_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_allocated_leaverequest(::std::string* leaverequest) {
+  if (leaverequest != NULL) {
+    
+  } else {
+    
+  }
+  leaverequest_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), leaverequest);
+  // @@protoc_insertion_point(field_set_allocated:chatserver.Requests.leaverequest)
+}
+
+// optional string leavereply = 7;
+inline void Requests::clear_leavereply() {
+  leavereply_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Requests::leavereply() const {
+  // @@protoc_insertion_point(field_get:chatserver.Requests.leavereply)
+  return leavereply_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_leavereply(const ::std::string& value) {
+  
+  leavereply_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:chatserver.Requests.leavereply)
+}
+inline void Requests::set_leavereply(const char* value) {
+  
+  leavereply_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:chatserver.Requests.leavereply)
+}
+inline void Requests::set_leavereply(const char* value, size_t size) {
+  
+  leavereply_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:chatserver.Requests.leavereply)
+}
+inline ::std::string* Requests::mutable_leavereply() {
+  
+  // @@protoc_insertion_point(field_mutable:chatserver.Requests.leavereply)
+  return leavereply_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Requests::release_leavereply() {
+  // @@protoc_insertion_point(field_release:chatserver.Requests.leavereply)
+  
+  return leavereply_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Requests::set_allocated_leavereply(::std::string* leavereply) {
+  if (leavereply != NULL) {
+    
+  } else {
+    
+  }
+  leavereply_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), leavereply);
+  // @@protoc_insertion_point(field_set_allocated:chatserver.Requests.leavereply)
+}
+
 #endif  // !PROTOBUF_INLINE_NOT_IN_HEADERS
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -1205,11 +1712,6 @@ inline void JoinRequest::set_allocated_name(::std::string* name) {
 namespace google {
 namespace protobuf {
 
-template <> struct is_proto_enum< ::chatserver::Stats_MsgType> : ::google::protobuf::internal::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::chatserver::Stats_MsgType>() {
-  return ::chatserver::Stats_MsgType_descriptor();
-}
 template <> struct is_proto_enum< ::chatserver::Commands_type> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::chatserver::Commands_type>() {

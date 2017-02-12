@@ -443,35 +443,40 @@ class chatServiceServer final : public commandService::Service {
         return Status::OK;
     }
 		
-	Status chat(ServerContext* context,
-                    ServerReaderWriter<Stats, Stats>* stream) override {
-        std::vector<Stats> received_log;
-        Stats recved;
-        Stats reply;
-        timeline* mailbox;
-		
-		// Read in a message, reply with some messages, repeat
-	    while (stream->Read(&recved)) {
-            // Timestamp and store the message in this user's timeline
-            if ((mailbox = getTimelinePointer(recved.name())) == NULL) {
-            	cerr << "Error: A client who doesn't exist is talking to us...\n";
-            }
-            else{
-            	recved.set_timestamp(stamp());
-            	Stats* temp = mailbox->add_statuses();
-            	*temp = recved;
-            }
-            if (DEBUG) {
-            	cout << "Mail box contents:\n" << mailbox->DebugString() << endl;
-            }
-
-            // @TODO: We can respond with subscriptions in future versions
-            // untill we can gather messages, this rpc will simply echo back messages
-            stream->Write(recved);
-            sleep(2); // Keep the terminals readable by not replying like a maniac 
+		Status chat(ServerContext* context,
+                 ServerReaderWriter<Stats, Stats>* stream) override {
+		  std::vector<Stats> received_log;
+		  Stats recved;
+			Stats reply;
+			timeline* mailbox;
+			
+			// Send recent 20 messages on chat request
+			stream->Read(&recved);
+			std::vector<Stats> recentMsgs = getRecentMessages(recved.name(), 20, -1);
+			for (const Stats& msg : recentMsgs) {
+				stream->Write(msg);
+			}
+			// Read in a message, reply with some messages, repeat
+		  while (stream->Read(&recved)) {
+				// Timestamp and store the message in this user's timeline
+				if ((mailbox = getTimelinePointer(recved.name())) == NULL) {
+					cerr << "Error: A client who doesn't exist is talking to us...\n";
+				}
+				else{
+					recved.set_timestamp(stamp());
+					Stats* temp = mailbox->add_statuses();
+					*temp = recved;
+				}
+				if (DEBUG) {
+					cout << "Mail box contents:\n" << mailbox->DebugString() << endl;
+				}
+				
+				// @TODO: We can respond with subscriptions in future versions
+				// untill we can gather messages, this rpc will simply echo back messages
+				stream->Write(recved);
+				sleep(2); // Keep the terminals readable by not replying like a maniac 
+			}
 		}
-        return Status::OK;
-   }
 };
 
 // Write each person's chatroom/timeline to the disk in a binary format
@@ -548,12 +553,9 @@ int main(int argc, char* argv[]) {
         portNumber = argv[1];
     }
 
-
-		// initTimelineList(&timelineList);
-	TimelinesFromDisk(timelineList);
-		// getRecentMessages("a", 20, 10);
-    startServer(portNumber);
-	TimelinesToDisk(timelineList);
+		TimelinesFromDisk(timelineList);
+	  startServer(portNumber);
+		TimelinesToDisk(timelineList);
     
     return 0;
 }
