@@ -52,6 +52,8 @@ using grpc::Channel;
 using grpc::ClientContext;
 using grpc::ClientReader;
 using grpc::ClientReaderWriter;
+using grpc::ClientAsyncResponseReader;
+using grpc::CompletionQueue;
 using grpc::ClientWriter;
 using grpc::Status;
 using chatserver::Stats;
@@ -64,12 +66,15 @@ using chatserver::Requests;
 //using chatserver::chatStream;
 
 bool chatMode = false; //client starts in commandMode
+std::vector<string> outgoing;
 
-Stats makeMessage(const std::string& username, const std::string& message) {
-	Stats m;
-	m.set_name(username);
-	m.set_msg(message);
-	return m;
+void* KeyboardHandler(void* unusedArg){
+	while (true) {
+		string tempMessage = "";
+		cout << "Press enter to send:" << endl;
+		getline(cin, tempMessage);
+		outgoing.push_back(tempMessage);
+	}
 }
 
 class chatServiceClient {
@@ -158,40 +163,57 @@ class chatServiceClient {
         }
     }
     
+		// void AsyncChatPrinter(ClientContext& c, CompletionQueue& cq){
+			// 
+		// }
 	  void chat() {
 	    ClientContext context;
 			static string name = this->userinput;
-	    std::shared_ptr<ClientReaderWriter<Stats, Stats> > stream(
+			// Asynchronous code
+			CompletionQueue cq;
+			Status asyncStatus;
+	    std::shared_ptr<ClientReaderWriter<Stats, Stats>> stream(
 	        stub->chat(&context));
 			
+			// Asynchronously print things
+			// std::unique_ptr<ClientAsyncResponseReader<Stats> > rpc(
+        // stub->AsyncChatPrinter(&context, &cq));
+        pthread_t thread_id = -1;
+				pthread_create(&thread_id,0,&KeyboardHandler, (void*)NULL);
+	      pthread_detach(thread_id);
+				// Thread; Takes keyboard input and sends to server
+				std::thread reader([stream]() {
+					Stats server_note;
+					cout << "Client Waiting to Read\n";
+			    while (stream->Read(&server_note)) {
+			      std::cout << server_note.name() << ":" << server_note.msg() << std::endl;
+			    }
+				});
 			// Thread; Takes keyboard input and sends to server
 	    std::thread writer([stream]() {
 	      std::vector<Stats> notes;
 				Stats m = Stats();
-				string tempMessage = "";
 				while (true){
-					cout << name + ":\n";
-					getline(cin, tempMessage);
-					m.set_name(name);
-					m.set_msg(tempMessage);
-					stream->Write(m);
+					if (outgoing.size() > 0) {
+						cout << "Client writing\n";
+						for (size_t i = 0; i < outgoing.size(); i++) {
+							m.set_name(name);
+							m.set_msg(outgoing[i]);
+							stream->Write(m);
+						}
+						outgoing.resize(0);
+					}
 				}
-					// The following is used for bulk sending messages:
-					// notes.push_back(m);
-					// for (const Stats& note : notes) {
-					// 	std::cout << "Sending:\n" << note.msg() << std::endl;
-					// 	stream->Write(note);
-					// }
 					
 				// Close the thread/connection and stop chatting
 	      stream->WritesDone();
 	    });
 			
 			// The current thread continues 
-	    Stats server_note;
-	    while (stream->Read(&server_note)) {
-	      std::cout << server_note.name() << ":" << server_note.msg() << std::endl;
-	    }
+	    // Stats server_note;
+	    // while (stream->Read(&server_note)) {
+	    //   std::cout << server_note.name() << ":" << server_note.msg() << std::endl;
+	    // }
 	    writer.join();
 	    Status status = stream->Finish();
 	    if (!status.ok()) {

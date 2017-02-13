@@ -39,6 +39,7 @@
 #include <string>
 #include <fstream>
 #include <unistd.h>
+#include <thread>
 
 #include <grpc/grpc.h>
 #include <grpc++/server.h>
@@ -135,7 +136,7 @@ timeline* getTimelinePointer(string nameX){
 
 // Allow message ranking for sorting
 bool msgGreaterThan(const Stats& l, const Stats& r){
-	return (l.timestamp() > r.timestamp());
+	return (l.timestamp() < r.timestamp());
 }
 
 // Gets the most recent k messages for a person
@@ -166,12 +167,12 @@ std::vector<Stats> getRecentMessages(string name, int k, int mostRecentTime){
 	if ((messages.size() > k) && (k >= 0)) {
 		messages.resize(k);
 	}
-	if (DEBUG) {
-		cout << "Most recent 20 messages:\n";
-		for (size_t i = 0; i < messages.size(); i++) {
-			cout << messages[i].timestamp() << endl;
-		}
-	}
+	// if (DEBUG) {
+	// 	cout << "Most recent messages:\n";
+	// 	for (size_t i = 0; i < messages.size(); i++) {
+	// 		cout << messages[i].timestamp() << endl;
+	// 	}
+	// }
 	return messages;
 }
 
@@ -449,24 +450,43 @@ class chatServiceServer final : public commandService::Service {
     }
 		
 		Status chat(ServerContext* context,
-                 ServerReaderWriter<Stats, Stats>* stream) override {
-		  std::vector<Stats> received_log;
-		  Stats recved;
-			Stats reply;
+	     ServerReaderWriter<Stats, Stats>* stream) override {
+			Stats recved;
 			timeline* mailbox;
-			int mostRecentMessageSent = -1;
-			
-			// Send recent 20 messages on chat request
-			stream->Read(&recved);
-			std::vector<Stats> recentMsgs = getRecentMessages(recved.name(), 20, -1);
-			for (const Stats& msg : recentMsgs) {
-				if (msg.timestamp() > mostRecentMessageSent) {
-					mostRecentMessageSent = msg.timestamp();
+			static string name;
+			static int mostRecentMessageSent = -1;
+			 
+			 cout << "Send recent 20 messages on chat request" << endl;
+			 stream->Read(&recved);
+			 cout << "First message:\n" << recved.DebugString() << endl;
+			 std::vector<Stats> recentMsgs = getRecentMessages(recved.name(), 20, -1);
+			 for (const Stats& msg : recentMsgs) {
+				 if (msg.timestamp() > mostRecentMessageSent) {
+					 mostRecentMessageSent = msg.timestamp();
+				 }
+				 stream->Write(msg);
+			 }
+			 name = recved.name();
+			 
+			std::thread writer([stream]() {
+				std::vector<Stats> outgoing;
+				while (true) {
+					outgoing = getRecentMessages(name, -1, mostRecentMessageSent);
+					if (outgoing.size() > 0) {
+						cout << "Writer/" << name <<": Sending message" << endl;
+						for (const Stats& msg : outgoing) {
+							if (msg.timestamp() > mostRecentMessageSent) {
+								mostRecentMessageSent = msg.timestamp();
+							}
+							stream->Write(msg);
+						}
+						outgoing.resize(0);
+					}
 				}
-				stream->Write(msg);
-			}
-			// Read in a message, reply with some messages, repeat
-		  while (stream->Read(&recved)) {
+			});
+			
+			// Read in messages
+		  do {
 				// Timestamp and store the message in this user's timeline
 				if ((mailbox = getTimelinePointer(recved.name())) == NULL) {
 					cerr << "Error: A client who doesn't exist is talking to us...\n";
@@ -476,20 +496,15 @@ class chatServiceServer final : public commandService::Service {
 					Stats* temp = mailbox->add_statuses();
 					*temp = recved;
 				}
-				if (DEBUG) {
-					cout << "Mail box contents:\n" << mailbox->DebugString() << endl;
-				}
-				
-				received_log = getRecentMessages(recved.name(), 20, mostRecentMessageSent);
-				for (const Stats& msg : received_log) {
-					if (msg.timestamp() > mostRecentMessageSent) {
-						mostRecentMessageSent = msg.timestamp();
-					}
-					stream->Write(msg);
-				}				
+				// if (DEBUG) {
+				// 	cout << "Mail box contents:\n" << mailbox->DebugString() << endl;
+				// }
 				sleep(1); // Keep the terminals readable by not replying like a maniac 
-			}
+				cout << "Server/" << name << ": waiting for a read\n";
+			} while (stream->Read(&recved));
+			// End chat
 		}
+// End class
 };
 
 // Write each person's chatroom/timeline to the disk in a binary format
