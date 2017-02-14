@@ -488,7 +488,7 @@ class chatServiceServer final : public commandService::Service {
 			});
 			
 			// Read in messages
-		  do {
+		  while (stream->Read(&recved)) {
 				// Timestamp and store the message in this user's timeline
 				if ((mailbox = getTimelinePointer(recved.name())) == NULL) {
 					cerr << "Error: A client who doesn't exist is talking to us...\n";
@@ -503,7 +503,7 @@ class chatServiceServer final : public commandService::Service {
 				// }
 				sleep(1); // Keep the terminals readable by not replying like a maniac 
 				cout << "Server/" << name << ": waiting for a read\n";
-			} while (stream->Read(&recved));
+			}
 			// End chat
 		}
 // End class

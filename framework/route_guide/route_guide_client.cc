@@ -175,12 +175,16 @@ class chatServiceClient {
 	    std::shared_ptr<ClientReaderWriter<Stats, Stats>> stream(
 	        stub->chat(&context));
 			
-			// Asynchronously print things
-			// std::unique_ptr<ClientAsyncResponseReader<Stats> > rpc(
-        // stub->AsyncChatPrinter(&context, &cq));
+				// Let the server know to whom their talking
+				Stats greeting = Stats();
+				greeting.set_name(name);
+				stream->Write(greeting);
+				
+				// Start a new thread for keyboard input
         pthread_t thread_id = -1;
 				pthread_create(&thread_id,0,&KeyboardHandler, (void*)NULL);
 	      pthread_detach(thread_id);
+
 				// Thread; Takes keyboard input and sends to server
 				std::thread reader([stream]() {
 					Stats server_note;
