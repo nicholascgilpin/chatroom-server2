@@ -79,9 +79,9 @@ void initTimelineList(vector<timeline>* tl){
 	timeline t2 = timeline();
 	timeline t3 = timeline();
 
-	t1.set_name("a");
-	t2.set_name("b");
-	t3.set_name("c");
+	t1.set_name("x");
+	t2.set_name("y");
+	t3.set_name("z");
 	
 	string* sub1 = t1.add_subscribed();
 	string* sub2 = t1.add_subscribed();
@@ -545,7 +545,11 @@ int TimelinesFromDisk(vector<timeline> tl){
 			cout << db.DebugString();
 		}
 		for (size_t i = 0; i < db.timeline_size(); i++) {
-			tl.push_back(timeline(db.timeline(i)));
+			clientUser newUser = clientUser();
+			newUser.set_name(db.timeline(i).name());
+			userList.push_back(newUser);
+			
+			timelineList.push_back(timeline(db.timeline(i)));
 		}
 		serverCounter = db.servercounter();
 	}
@@ -589,7 +593,6 @@ int main(int argc, char* argv[]) {
     if (argc >= 2) {
         portNumber = argv[1];
     }
-		initTimelineList(&timelineList);
 		TimelinesFromDisk(timelineList);
 	  startServer(portNumber);
     
