@@ -177,6 +177,7 @@ class chatServiceClient {
 				while (true){
 					cout << "Press enter to send:";
 					getline(cin, tempMessage);
+					cout << endl;
 					m.set_name(name);
 					m.set_msg(tempMessage);
 					stream->Write(m);
@@ -195,7 +196,7 @@ class chatServiceClient {
 			// The current thread continues 
 	    Stats server_note;
 	    while (stream->Read(&server_note)) {
-	      std::cout << server_note.name() << ":" << server_note.msg() << std::endl;
+	      std::cout << " Server Room:" << server_note.name() << " Server Time:" << server_note.timestamp() << "\n" << server_note.msg() << std::endl;
 	    }
 	    writer.join();
 	    Status status = stream->Finish();

@@ -141,7 +141,7 @@ bool msgGreaterThan(const Stats& l, const Stats& r){
 return (l.timestamp() < r.timestamp());
 }
 
-// Gets the most recent k messages for a person
+// Gets the most recent k messages for a person depending on subs
 // mostRecentTime is the timestamp of the most recent message sent to client
 std::vector<Stats> getRecentMessages(string name, int k, int mostRecentTime){
 std::vector<Stats> messages;
@@ -452,43 +452,24 @@ class chatServiceServer final : public commandService::Service {
 	}
 	
 	Status chat(ServerContext* context,
-		 ServerReaderWriter<Stats, Stats>* stream) override {
+							 ServerReaderWriter<Stats, Stats>* stream) override {
+		std::vector<Stats> received_log;
 		Stats recved;
+		Stats reply;
 		timeline* mailbox;
-		static string name;
-		static int mostRecentMessageSent = -1;
-		 
-		 cout << "Send recent 20 messages on chat request" << endl;
-		 stream->Read(&recved);
-		 cout << "First message:\n" << recved.DebugString() << endl;
-		 std::vector<Stats> recentMsgs = getRecentMessages(recved.name(), 20, -1);
-		 for (const Stats& msg : recentMsgs) {
-			 if (msg.timestamp() > mostRecentMessageSent) {
-				 mostRecentMessageSent = msg.timestamp();
-			 }
-			 stream->Write(msg);
-		 }
-		 name = recved.name();
-		 
-		std::thread writer([stream]() {
-			std::vector<Stats> outgoing;
-			while (true) {
-				outgoing = getRecentMessages(name, -1, mostRecentMessageSent);
-				if (outgoing.size() > 0) {
-					cout << "Writer/" << name <<": Sending message" << endl;
-					for (const Stats& msg : outgoing) {
-						if (msg.timestamp() > mostRecentMessageSent) {
-							mostRecentMessageSent = msg.timestamp();
-						}
-						stream->Write(msg);
-					}
-					outgoing.resize(0);
-				}
-			}
-		});
+		int mostRecentMessageSent = -1;
 		
-		// Read in messages
-		do {
+		// Send recent 20 messages on chat request
+		stream->Read(&recved);
+		std::vector<Stats> recentMsgs = getRecentMessages(recved.name(), 20, -1);
+		for (const Stats& msg : recentMsgs) {
+			if (msg.timestamp() > mostRecentMessageSent) {
+				mostRecentMessageSent = msg.timestamp();
+			}
+			stream->Write(msg);
+		}
+		// Read in a message, reply with some messages, repeat
+		while (stream->Read(&recved)) {
 			// Timestamp and store the message in this user's timeline
 			if ((mailbox = getTimelinePointer(recved.name())) == NULL) {
 				cerr << "Error: A client who doesn't exist is talking to us...\n";
@@ -498,13 +479,19 @@ class chatServiceServer final : public commandService::Service {
 				Stats* temp = mailbox->add_statuses();
 				*temp = recved;
 			}
-			// if (DEBUG) {
-			// 	cout << "Mail box contents:\n" << mailbox->DebugString() << endl;
-			// }
+			if (DEBUG) {
+				cout << "Mail box contents:\n" << mailbox->DebugString() << endl;
+			}
+			
+			received_log = getRecentMessages(recved.name(), 20, mostRecentMessageSent);
+			for (const Stats& msg : received_log) {
+				if (msg.timestamp() > mostRecentMessageSent) {
+					mostRecentMessageSent = msg.timestamp();
+				}
+				stream->Write(msg);
+			}				
 			sleep(1); // Keep the terminals readable by not replying like a maniac 
-			cout << "Server/" << name << ": waiting for a read\n";
-		} while (stream->Read(&recved));
-		// End chat
+		}
 	}
 // End class
 };
