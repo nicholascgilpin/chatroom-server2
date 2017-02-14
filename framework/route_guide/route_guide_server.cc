@@ -40,6 +40,8 @@
 #include <fstream>
 #include <unistd.h>
 #include <thread>
+#include <signal.h>
+#include <cstdlib>
 
 #include <grpc/grpc.h>
 #include <grpc++/server.h>
@@ -68,7 +70,7 @@ using chatserver::TimelineDB;
 //using chatserver::chatStream;
 
 // Debugging Code /////////////////////////////////////////////////////////////
-const bool DEBUG = true; // Toggles debugging print messages
+const bool DEBUG = false; // Toggles debugging print messages
 
 // Create a test timeline list (Only simulates create/diskIO)
 void initTimelineList(vector<timeline>* tl){
@@ -508,28 +510,24 @@ class chatServiceServer final : public commandService::Service {
 };
 
 // Write each person's chatroom/timeline to the disk in a binary format
-int TimelinesToDisk(vector<timeline> tl){
-	cout << "Serializing timelines...\n";
+void TimelinesToDisk(){
+	cerr << "\nSerializing timelines...\n"; 
 	TimelineDB db = TimelineDB();
-	for (size_t i = 0; i < tl.size(); i++) {
+	for (size_t i = 0; i < timelineList.size(); i++) {
 		timeline* t = db.add_timeline();
-		*t = tl[i];
+		*t = timelineList[i];
 	}
-	
 	serverCounter += 10; // Ensure the server time is later than any message
 	db.set_servercounter(serverCounter);
-	
 	std::string  fileName("Error in function TimelinesToDisk");
 	fileName = "db.bin";
 	fstream fs(fileName, ios::out | ios::trunc | ios::binary);
 	if (!db.SerializeToOstream(&fs)) {
 		cerr << "Failed to write to disk." << endl;
-		return -1;
 	}
 	fs.close();
-	return 0;
+	exit(0);
 }
-
 // Read the timelines from the disk to a vector
 int TimelinesFromDisk(vector<timeline> tl){
 	std::string fileName = "db.bin";
@@ -554,6 +552,13 @@ int TimelinesFromDisk(vector<timeline> tl){
 	return 0;
 }
 
+// Save after receiving a shutdown signal
+void signalHandler(int n){
+	static pthread_once_t semaphore = PTHREAD_ONCE_INIT;
+	pthread_once(&semaphore, TimelinesToDisk);
+	exit(0);
+}
+
 void startServer(string portNumber) {
     // create facebookServer object
     chatServiceServer chatServiceServer;
@@ -570,20 +575,23 @@ void startServer(string portNumber) {
     // return a running server that is ready to process calls
     unique_ptr<Server> server(serverBuilder.BuildAndStart());
     
+		cout << "Use ctrl-c to save to disk and shutdown\n";
     cout << "Server is running on: " << "localhost:" + portNumber << endl;
-    cout << "Server waiting for shutdown signal\n";
     server->Wait();
 }
 
 int main(int argc, char* argv[]) {
+		// Used for saving server on shutdown
+		signal(SIGINT, signalHandler);
+		signal(SIGQUIT, signalHandler);
+
     string portNumber = "5056";
     if (argc >= 2) {
         portNumber = argv[1];
     }
-
+		initTimelineList(&timelineList);
 		TimelinesFromDisk(timelineList);
 	  startServer(portNumber);
-		TimelinesToDisk(timelineList);
     
     return 0;
 }
