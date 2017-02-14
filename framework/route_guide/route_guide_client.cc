@@ -164,13 +164,18 @@ class chatServiceClient {
 	    std::shared_ptr<ClientReaderWriter<Stats, Stats> > stream(
 	        stub->chat(&context));
 			
+			// Let server know to whom they're talking and to send back a response
+			Stats m = Stats();
+			m.set_name(name);
+			stream->Write(m);
+			
 			// Thread; Takes keyboard input and sends to server
 	    std::thread writer([stream]() {
 	      std::vector<Stats> notes;
 				Stats m = Stats();
 				string tempMessage = "";
 				while (true){
-					cout << name + ":\n";
+					cout << "Press enter to send:";
 					getline(cin, tempMessage);
 					m.set_name(name);
 					m.set_msg(tempMessage);
